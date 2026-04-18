@@ -61,12 +61,12 @@
 각 단계는 **리뷰 에이전트 통과 = Gate 통과**로 다음 단계 진입 가능합니다.
 
 ### Phase 1 — 기획 (Week 1)
-- [ ] `agents/planner.md` 실행
-- [ ] PRD (제품 요구서) 작성
-- [ ] 기능 목록 & 우선순위 (MoSCoW)
-- [ ] 화면 목록 (Sitemap) — 웹/모바일 공통
-- [ ] 사용자 스토리 10개 이상
-- [ ] 데이터 모델 초안 (Exhibition, Gallery, Category)
+- [x] `agents/planner.md` 실행
+- [x] PRD (제품 요구서) 작성 → `docs/PRD.md`
+- [x] 기능 목록 & 우선순위 (MoSCoW) → `docs/PRD.md §5`
+- [x] 화면 목록 (Sitemap) — 웹/모바일 공통 → `docs/sitemap.md`
+- [x] 사용자 스토리 10개 이상 → `docs/user-stories.md` (19개)
+- [x] 데이터 모델 초안 (Exhibition, Gallery, Category) → `docs/data-model.md`
 - [ ] **Gate 1**: `agents/reviewer.md`로 기획 검토 통과
 
 ### Phase 2 — 디자인 (Week 2)
