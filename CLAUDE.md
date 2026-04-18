@@ -67,7 +67,7 @@
 - [x] 화면 목록 (Sitemap) — 웹/모바일 공통 → `docs/sitemap.md`
 - [x] 사용자 스토리 10개 이상 → `docs/user-stories.md` (19개)
 - [x] 데이터 모델 초안 (Exhibition, Gallery, Category) → `docs/data-model.md`
-- [ ] **Gate 1**: `agents/reviewer.md`로 기획 검토 통과
+- [x] **Gate 1**: `agents/reviewer.md`로 기획 검토 통과 → `docs/reviews/phase-1-20260418.md` (PASS, Minor 5 / Nit 4)
 
 ### Phase 2 — 디자인 (Week 2)
 - [ ] `agents/designer.md` 실행
