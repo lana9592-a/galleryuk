@@ -64,7 +64,7 @@ GOAL       ENTRY       DISCOVER         DECIDE          ACT
 
 ## 5. 기능 명세 (MoSCoW)
 
-### 5.1 Must Have — v1.0 (총 5개)
+### 5.1 Must Have — v1.0 (총 6개)
 
 **F-01 전시 목록 (Home / List)**
 - 현재 진행 중 / 곧 시작 탭
@@ -93,11 +93,15 @@ GOAL       ENTRY       DISCOVER         DECIDE          ACT
 - `rel="noopener noreferrer"`
 - `ticketUrl`이 null이면 "무료 / 티켓 불필요" 배지
 
+**F-08 미술관 상세** (Gate 1 결정으로 Must 승격)
+- 기본정보(이름·주소·운영시간·웹사이트)
+- 위치 미니맵 + "Show on full map" 링크
+- 현재 전시 / 예정 전시 그리드
+
 ### 5.2 Should Have
 
 - F-06 필터 (카테고리 / 기간 / 지역 / 가격대) — URL 쿼리 반영
 - F-07 근처 미술관 (Geolocation)
-- F-08 미술관 상세 (운영시간, 주소, 현재 전시 리스트)
 
 ### 5.3 Could Have
 
@@ -178,18 +182,19 @@ GOAL       ENTRY       DISCOVER         DECIDE          ACT
 
 ---
 
-## 11. ❓ 결정 필요
+## 11. 결정 이력 (Phase 1 Gate 이후)
 
-사용자(프로젝트 오너) 확답이 필요한 항목:
+Phase 1 Gate 통과 후 2026-04-18 사용자 확정:
 
-- Q1. **도메인 이름** — `galleryuk.app` / `.co.uk` / 보류?
-- Q2. **초기 커버리지** — 런던 한정으로 시작? 영국 전역?
-- Q3. **데이터 시드 작업자** — PM이 직접 10개 미술관·30개 전시 수집? 외주? AI 초안 + 검수?
-- Q4. **Analytics** — Vercel Analytics(익명) 켤까, 완전 무수집?
-- Q5. **브랜딩 톤** — 미니멀 모노크롬 (제안) vs 컬러풀?
-- Q6. **연락/제보 폼** — 전시 누락 신고 받을 이메일 주소?
+- Q1. **도메인** → **보류** (Vercel 기본 `galleryuk.vercel.app` 사용, 운영 후 검토)
+- Q2. **초기 커버리지** → **런던 한정** (자치구 기준 필터, 영국 전역은 v1.1+)
+- Q3. 데이터 시드 → PM 직접 수집 (기본) + AI 초안 검수 보조
+- Q4. Analytics → **Vercel Analytics (익명)** 활성
+- Q5. **브랜딩 톤** → **미니멀 모노크롬** (아이보리 + 블랙 + 포인트 레드)
+- Q6. 제보 폼 → `/about` 페이지에 `mailto:` 링크 (이메일은 배포 전 확정)
 
-Phase 2 진입 전에 Q1, Q2, Q5는 반드시 확정 필요.
+Phase 2에서 해결된 기획 이슈:
+- [m-05] Gallery 상세 스코프 → F-08을 Must로 격상 (본 문서 §5.1 반영)
 
 ---
 

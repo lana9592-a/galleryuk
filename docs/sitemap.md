@@ -12,8 +12,8 @@
 | `/` | Home (Hero + Now on / Coming Soon) | SSG + ISR 1h | US-01, US-02 | Must |
 | `/exhibitions` | 전시 목록 (필터/정렬) | SSG + ISR 1h | US-01, US-03, US-04 | Must |
 | `/exhibitions/[slug]` | 전시 상세 | SSG (generateStaticParams) | US-05, US-06, US-07 | Must |
-| `/galleries` | 미술관 목록 | SSG | US-08 보조 | Should |
-| `/galleries/[slug]` | 미술관 상세 | SSG | F-08 | Should |
+| `/galleries` | 미술관 목록 | SSG | US-08 보조 | Must |
+| `/galleries/[slug]` | 미술관 상세 | SSG | F-08 | Must |
 | `/map` | 지도 뷰 | CSR (client island) | US-08, US-09 | Must |
 | `/search` | 검색 결과 | CSR | US-10, US-11 | Must |
 | `/about` | 소개 / 제보 | SSG | US-19 | Could |
@@ -216,8 +216,11 @@ Mobile:
 
 ---
 
-## 9. ❓ 결정 필요
+## 9. 결정 이력 / 열린 질문
 
-- Q-S1. 미술관 상세(`/galleries/[slug]`)를 v1.0에 포함할지 v1.1로 미룰지
-- Q-S2. `/about` 페이지에 수록할 연락/제보 수단
-- Q-S3. 지역(Borough) 필터 분류 기준 (공식 런던 32개 자치구 기준 vs 관광 지구 기준)
+**확정 (2026-04-18):**
+- Q-S1 미술관 상세 → **v1.0 Must 포함** (Sheet의 "Open details" dead-end 방지)
+- Q-S3 Borough 필터 → **공식 런던 32개 자치구** 기준 (정확성 우선)
+
+**배포 전 확정 필요:**
+- Q-S2 `/about` 제보 수단 → `mailto:` 링크 + 대상 이메일 주소

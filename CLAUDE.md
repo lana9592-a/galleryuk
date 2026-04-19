@@ -70,11 +70,11 @@
 - [x] **Gate 1**: `agents/reviewer.md`로 기획 검토 통과 → `docs/reviews/phase-1-20260418.md` (PASS, Minor 5 / Nit 4)
 
 ### Phase 2 — 디자인 (Week 2)
-- [ ] `agents/designer.md` 실행
-- [ ] 디자인 토큰 (색상/타이포/간격) 확정
-- [ ] 웹 와이어프레임 (Home / List / Detail / Map / Search)
-- [ ] 모바일 와이어프레임 (같은 화면, 세로형)
-- [ ] 컴포넌트 인벤토리 (버튼/카드/필터 등)
+- [x] `agents/designer.md` 실행
+- [x] 디자인 토큰 (색상/타이포/간격) 확정 → `docs/design-system.md`
+- [x] 웹 와이어프레임 (Home / List / Detail / Map / Search) → `docs/wireframes.md`
+- [x] 모바일 와이어프레임 (같은 화면, 세로형) → `docs/wireframes.md`
+- [x] 컴포넌트 인벤토리 (버튼/카드/필터 등) → `docs/component-spec.md` (23종)
 - [ ] **Gate 2**: 리뷰 검토 통과 + 디자인-개발 핸드오프 문서
 
 ### Phase 3 — 개발: 기반 (Week 3)

@@ -81,7 +81,7 @@
 
 ### Category enum
 ```
-"painting" | "photo" | "sculpture" | "installation" | "mixed"
+"painting" | "photography" | "sculpture" | "installation" | "mixed"
 ```
 
 ### 예시
@@ -116,7 +116,7 @@
 import { z } from 'zod';
 
 export const CategoryEnum = z.enum([
-  'painting','photo','sculpture','installation','mixed',
+  'painting','photography','sculpture','installation','mixed',
 ]);
 
 export const GallerySchema = z.object({
@@ -209,9 +209,12 @@ if (!galleries.find(g => g.id === ex.galleryId)) {
 
 ---
 
-## 8. ❓ 결정 필요
+## 8. 결정 이력 / 열린 질문
 
-- Q-D1. `category` enum에 `"photo"` vs `"photography"` — 짧은 게 나을지 정식 명칭이 나을지
-- Q-D2. 전시 외 **상시 전시(Permanent)** 처리: 별도 엔티티 vs `endDate = "9999-12-31"` 관용값
-- Q-D3. 다국어 지원 시 필드 확장 전략 (`title_ko` 추가 vs `translations: {ko: {...}}`)
-- Q-D4. 작가 정보를 단순 string[]으로 유지할지, `Artist` 엔티티로 정규화할지 (v1.1 이후)
+**확정 (2026-04-18):**
+- Q-D1 `category` enum → **`"photography"`** 정식 명칭 채택 (URL/UI 모두 동일)
+
+**v1.1 이후 재검토:**
+- Q-D2 상시 전시(Permanent) 처리 (별도 필드 `isPermanent: boolean` 유력)
+- Q-D3 다국어 확장 전략 (i18n 도입 시 결정)
+- Q-D4 `Artist` 엔티티 정규화
