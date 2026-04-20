@@ -256,6 +256,20 @@ padding-x: 16 (sm), 24 (md), 32 (lg+)
 - **의미 있는 이미지**: 전시명 + 특징 (예: "Installation view of Turner Prize 2026")
 - **장식 이미지**: `alt=""` 허용 (반드시 빈 문자열)
 
+### 9.4 Gallery 로고 아바타 (fallback 규칙)
+
+우선순위: **SVG → PNG → 이니셜 아바타**.
+
+1. `Gallery.logoUrl`이 SVG → 40×40 circle crop, `currentColor` 컬러링 가능
+2. `logoUrl`이 PNG/JPG → 40×40 cover, circle mask
+3. `logoUrl` 없음 → **이니셜 아바타**:
+   - 이름 단어의 첫 글자 최대 2개 (`"Tate Modern"` → `TM`, `"V&A"` → `VA`, 단어 1개면 2글자)
+   - 대문자, `font-sans text-sm font-semibold`
+   - 배경: `--color-surface-muted`, 텍스트: `--color-text`
+   - 원형, 1px `--color-border`
+
+컴포넌트로 `<GalleryAvatar gallery={...} size={40} />` 단일화.
+
 ---
 
 ## 10. 다크 모드 (v1.1 예약)
@@ -340,6 +354,55 @@ export default {
   --color-focus: #2563EB;
 }
 ```
+
+---
+
+## 12.5 포맷팅 유틸 계약 (Intl)
+
+SSR/CSR 간 날짜 포맷이 달라지면 React hydration mismatch가 발생하므로 **서버/클라이언트 모두 `en-GB` 로케일·UTC 해석**으로 고정한다.
+
+```ts
+// lib/format.ts
+const DATE_LOCALE = 'en-GB';
+const TZ = 'Europe/London';
+
+// "28 Apr" (카드 메타 — 연도 생략, 당해 연도 기준)
+export function formatDateShort(iso: string): string {
+  return new Intl.DateTimeFormat(DATE_LOCALE, {
+    day: '2-digit', month: 'short', timeZone: TZ,
+  }).format(new Date(iso));
+}
+
+// "24 Sep 2026 – 22 Feb 2027" (상세 헤더 — 풀 포맷)
+export function formatDateRange(startIso: string, endIso: string): string {
+  const fmt = new Intl.DateTimeFormat(DATE_LOCALE, {
+    day: '2-digit', month: 'short', year: 'numeric', timeZone: TZ,
+  });
+  return `${fmt.format(new Date(startIso))} – ${fmt.format(new Date(endIso))}`;
+}
+
+// "From £18" / "Free" / "£18–£24"
+export function formatPrice(from: number | null, to?: number | null): string {
+  if (from == null) return 'Free';
+  const gbp = (n: number) => new Intl.NumberFormat('en-GB', {
+    style: 'currency', currency: 'GBP', maximumFractionDigits: 0,
+  }).format(n);
+  if (to != null && to > from) return `${gbp(from)}–${gbp(to)}`;
+  return `From ${gbp(from)}`;
+}
+
+// "Ends in 3 days" / "Starts in 5 days" / "Ended"
+// (파생 상태 표시 — 클라이언트 전용 사용 권장)
+export function formatRelativeDeadline(...): string { /* ... */ }
+```
+
+사용처:
+| 상황 | 함수 |
+|---|---|
+| 카드 메타 기간 | `formatDateShort(endDate)` 앞에 `~` 접두 |
+| 상세 헤더 기간 | `formatDateRange(startDate, endDate)` |
+| 카드/상세 가격 | `formatPrice(priceFrom, priceTo)` |
+| 상태 배지 (선택) | `formatRelativeDeadline` — 클라이언트 Hydration 이후 |
 
 ---
 

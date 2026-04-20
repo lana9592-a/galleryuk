@@ -45,11 +45,13 @@ type ButtonProps = {
 | link | transparent | `--color-primary` | none (underline hover) | 텍스트 링크 강조 |
 
 ### Sizes
-| Size | height | px padding | text |
-|---|---|---|---|
-| sm | 32 | 12 | `text-sm` |
-| md | 40 | 16 | `text-sm` |
-| lg | 56 | 20 | `text-base` |
+| Size | 시각 height | **실제 hit area (mobile)** | px padding | text |
+|---|---|---|---|---|
+| sm | 32 | 44 (패딩으로 확장) | 12 | `text-sm` |
+| md | 40 | 44 | 16 | `text-sm` |
+| lg | 56 | 56 | 20 | `text-base` |
+
+**터치 타겟 규약**: 모든 버튼은 모바일(`<md`)에서 hit area ≥ 44×44를 보장한다. `sm`은 시각적 높이 32를 유지하되 수직 패딩을 늘려 히트박스를 44로 확장(`py-[6px]` 추가). 데스크톱(`≥md`)에서는 시각 높이 그대로 허용. 같은 규약이 `IconButton`·`FilterChip`에도 적용.
 
 ### States
 - default / hover / active / focus-visible / disabled / loading
@@ -177,7 +179,7 @@ type GalleryCardProps = {
 };
 ```
 
-- 좌측: 로고 (40×40 circle, 없으면 이니셜)
+- 좌측: 로고 아바타 (40×40 circle, 규칙은 `design-system.md §9.4` 참조)
 - 중앙: 이름(`text-lg`) · borough(`text-sm muted`)
 - 우측: "N exhibitions" 또는 "2.3 km"
 - 전체 클릭 → `/galleries/[slug]`
@@ -199,7 +201,7 @@ type FilterChipProps = {
 };
 ```
 
-- pill, height 32
+- pill, 시각 height 32 / 모바일 hit area ≥ 44 (수직 패딩 확장)
 - active: `bg: --color-text`, `text: white`
 - inactive: `bg: --color-surface`, `border: --color-border`
 - count > 0이면 `label · N` 형태
