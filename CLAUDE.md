@@ -78,12 +78,12 @@
 - [x] **Gate 2**: 리뷰 검토 통과 + 디자인-개발 핸드오프 문서 → `docs/reviews/phase-2-20260418.md` (PASS, Minor 6 / Nit 4)
 
 ### Phase 3 — 개발: 기반 (Week 3)
-- [ ] `agents/developer.md` 실행
-- [ ] Next.js 14 + TypeScript + Tailwind 프로젝트 생성
-- [ ] 폴더 구조, ESLint/Prettier, 절대경로 설정
-- [ ] 디자인 토큰을 Tailwind config에 반영
-- [ ] 공통 레이아웃 / 네비게이션 / 반응형 breakpoint
-- [ ] 더미 데이터 기반 화면 5개 구현
+- [x] `agents/developer.md` 실행
+- [x] Next.js 14 + TypeScript + Tailwind 프로젝트 생성
+- [x] 폴더 구조, ESLint/Prettier, 절대경로 설정
+- [x] 디자인 토큰을 Tailwind config에 반영
+- [x] 공통 레이아웃 / 네비게이션 / 반응형 breakpoint
+- [x] 더미 데이터 기반 화면 5개 구현 (Home / Exhibitions 목록·상세 / Galleries 목록·상세, + Map·Search·About·Offline·404 보조 화면)
 - [ ] **Gate 3**: 리뷰 통과
 
 ### Phase 4 — API 연결 & PWA (Week 4)

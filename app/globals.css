@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #FAFAF7;
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F3F2EC;
+  --color-text: #1A1A1A;
+  --color-text-muted: #6B6B6B;
+  --color-text-faint: #9A9A9A;
+  --color-border: #E5E5E0;
+  --color-border-strong: #CFCFC8;
+  --color-primary: #B91C1C;
+  --color-primary-hover: #991B1B;
+  --color-primary-soft: #FEE2E2;
+  --color-accent: #1E3A8A;
+  --color-success: #15803D;
+  --color-warning: #CA8A04;
+  --color-danger: #DC2626;
+  --color-focus: #2563EB;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: Inter, Pretendard, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--color-primary);
+    color: #ffffff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
