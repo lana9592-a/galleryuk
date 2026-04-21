@@ -87,12 +87,12 @@
 - [x] **Gate 3**: 리뷰 통과 → `docs/reviews/phase-3-20260421.md` (PASS, Minor 6 / Nit 4)
 
 ### Phase 4 — API 연결 & PWA (Week 4)
-- [ ] 데이터 소스 결정: Supabase / JSON Seed / External API
-- [ ] `/api/*` Route Handlers 구현
-- [ ] Google Maps 연동 (지도 + 마커 + 클러스터)
-- [ ] 예매 Deep Link 연결
-- [ ] PWA 설정: `manifest.webmanifest`, icons, Service Worker
-- [ ] 오프라인 fallback 페이지
+- [x] 데이터 소스 결정: **JSON Seed 유지 (MVP)** — Supabase는 v1.1로 연기 (`docs/backlog.md` 기록, `lib/data.ts` 단일 경로)
+- [x] `/api/*` Route Handlers 구현 (`app/api/exhibitions/route.ts`, `app/api/galleries/route.ts`, Zod 검증 + `stale-while-revalidate`)
+- [x] Google Maps 연동 (`components/map/LondonMap.tsx` + `@react-google-maps/api` + MarkerClusterer, API 키 부재 시 리스트 fallback)
+- [x] 예매 Deep Link 연결 (`app/(site)/exhibitions/[slug]/page.tsx` `target="_blank" rel="noopener noreferrer"`)
+- [x] PWA 설정: `app/manifest.ts`, `public/icons/*.svg`, `public/sw.js` + `ServiceWorkerRegistrar`
+- [x] 오프라인 fallback 페이지 (`app/offline/page.tsx` — `(site)` 그룹 밖이라 크롬 없이 단독 렌더; SW navigate fallback으로 연결)
 - [ ] **Gate 4**: 리뷰 통과
 
 ### Phase 5 — QA & 배포 (Week 5~6)

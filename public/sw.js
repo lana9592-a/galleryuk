@@ -1,0 +1,122 @@
+// GalleryUK Service Worker
+// Strategy:
+//   navigate -> network-first, fallback to cache, then /offline
+//   /api/*   -> stale-while-revalidate (5 min)
+//   images   -> cache-first (LRU ~60)
+//   static   -> stale-while-revalidate
+
+const VERSION = 'v1';
+const APP_SHELL = `galleryuk-shell-${VERSION}`;
+const RUNTIME = `galleryuk-runtime-${VERSION}`;
+const IMAGES = `galleryuk-images-${VERSION}`;
+const API = `galleryuk-api-${VERSION}`;
+
+const OFFLINE_URL = '/offline';
+
+const PRECACHE_URLS = [OFFLINE_URL, '/icons/icon.svg', '/manifest.webmanifest'];
+const MAX_IMAGES = 60;
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches
+      .open(APP_SHELL)
+      .then((cache) => cache.addAll(PRECACHE_URLS))
+      .then(() => self.skipWaiting()),
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then(async (keys) => {
+      const allowed = new Set([APP_SHELL, RUNTIME, IMAGES, API]);
+      await Promise.all(keys.filter((k) => !allowed.has(k)).map((k) => caches.delete(k)));
+      await self.clients.claim();
+    }),
+  );
+});
+
+function trimCache(cacheName, maxEntries) {
+  return caches.open(cacheName).then(async (cache) => {
+    const keys = await cache.keys();
+    const overflow = keys.length - maxEntries;
+    if (overflow > 0) {
+      await Promise.all(keys.slice(0, overflow).map((k) => cache.delete(k)));
+    }
+  });
+}
+
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin && !isImageRequest(req)) return;
+
+  if (req.mode === 'navigate') {
+    event.respondWith(networkFirstNavigate(req));
+    return;
+  }
+
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(staleWhileRevalidate(req, API));
+    return;
+  }
+
+  if (isImageRequest(req)) {
+    event.respondWith(cacheFirstImage(req));
+    return;
+  }
+
+  if (url.origin === self.location.origin) {
+    event.respondWith(staleWhileRevalidate(req, RUNTIME));
+  }
+});
+
+async function networkFirstNavigate(req) {
+  try {
+    const fresh = await fetch(req);
+    const cache = await caches.open(RUNTIME);
+    cache.put(req, fresh.clone());
+    return fresh;
+  } catch {
+    const cached = await caches.match(req);
+    if (cached) return cached;
+    const offline = await caches.match(OFFLINE_URL);
+    if (offline) return offline;
+    return new Response('Offline', { status: 503, statusText: 'Offline' });
+  }
+}
+
+async function staleWhileRevalidate(req, cacheName) {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(req);
+  const network = fetch(req)
+    .then((res) => {
+      if (res && res.status === 200) cache.put(req, res.clone());
+      return res;
+    })
+    .catch(() => null);
+  return cached || (await network) || new Response('', { status: 504 });
+}
+
+async function cacheFirstImage(req) {
+  const cache = await caches.open(IMAGES);
+  const cached = await cache.match(req);
+  if (cached) return cached;
+  try {
+    const res = await fetch(req);
+    if (res && res.status === 200) {
+      cache.put(req, res.clone());
+      trimCache(IMAGES, MAX_IMAGES);
+    }
+    return res;
+  } catch {
+    return Response.error();
+  }
+}
+
+function isImageRequest(req) {
+  if (req.destination === 'image') return true;
+  const url = new URL(req.url);
+  return /\.(png|jpg|jpeg|webp|avif|svg|gif)$/i.test(url.pathname);
+}
