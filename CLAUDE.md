@@ -93,7 +93,7 @@
 - [x] 예매 Deep Link 연결 (`app/(site)/exhibitions/[slug]/page.tsx` `target="_blank" rel="noopener noreferrer"`)
 - [x] PWA 설정: `app/manifest.ts`, `public/icons/*.svg`, `public/sw.js` + `ServiceWorkerRegistrar`
 - [x] 오프라인 fallback 페이지 (`app/offline/page.tsx` — `(site)` 그룹 밖이라 크롬 없이 단독 렌더; SW navigate fallback으로 연결)
-- [ ] **Gate 4**: 리뷰 통과
+- [x] **Gate 4**: 리뷰 통과 → `docs/reviews/phase-4-20260421.md` (PASS, Minor 7 / Nit 4)
 
 ### Phase 5 — QA & 배포 (Week 5~6)
 - [ ] `agents/qa.md` 실행: 테스트 계획 수립 및 실행
