@@ -84,7 +84,7 @@
 - [x] 디자인 토큰을 Tailwind config에 반영
 - [x] 공통 레이아웃 / 네비게이션 / 반응형 breakpoint
 - [x] 더미 데이터 기반 화면 5개 구현 (Home / Exhibitions 목록·상세 / Galleries 목록·상세, + Map·Search·About·Offline·404 보조 화면)
-- [ ] **Gate 3**: 리뷰 통과
+- [x] **Gate 3**: 리뷰 통과 → `docs/reviews/phase-3-20260421.md` (PASS, Minor 6 / Nit 4)
 
 ### Phase 4 — API 연결 & PWA (Week 4)
 - [ ] 데이터 소스 결정: Supabase / JSON Seed / External API
