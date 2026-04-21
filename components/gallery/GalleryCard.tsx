@@ -4,17 +4,19 @@ import type { Gallery } from '@/lib/schemas';
 import { GalleryAvatar } from './GalleryAvatar';
 import { cn } from '@/lib/utils';
 
+export type GalleryCardProps = {
+  gallery: Pick<Gallery, 'id' | 'name' | 'shortName' | 'logoUrl' | 'borough'>;
+  activeCount: number;
+  distanceKm?: number;
+  className?: string;
+};
+
 export function GalleryCard({
   gallery,
   activeCount,
   distanceKm,
   className,
-}: {
-  gallery: Pick<Gallery, 'id' | 'name' | 'shortName' | 'logoUrl' | 'borough'>;
-  activeCount: number;
-  distanceKm?: number;
-  className?: string;
-}) {
+}: GalleryCardProps) {
   const name = gallery.shortName ?? gallery.name;
   return (
     <Link

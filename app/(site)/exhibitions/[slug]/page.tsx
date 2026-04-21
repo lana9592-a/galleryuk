@@ -81,7 +81,7 @@ export default async function ExhibitionDetailPage({
         <header className="space-y-4">
           <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wide text-text-muted">
             <Badge tone={statusTone}>{statusLabel}</Badge>
-            <span>{CATEGORY_LABEL[exhibition.category] ?? exhibition.category}</span>
+            <span>{CATEGORY_LABEL[exhibition.category]}</span>
           </div>
           <h1 className="font-serif text-3xl font-bold leading-tight md:text-5xl">
             {exhibition.title}

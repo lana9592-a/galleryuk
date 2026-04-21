@@ -4,13 +4,12 @@ import { ArrowRight } from 'lucide-react';
 import type { Exhibition, Gallery } from '@/lib/schemas';
 import { formatDateShort, formatPriceCompact } from '@/lib/format';
 
-export function ExhibitionHero({
-  exhibition: e,
-  gallery: g,
-}: {
+export type ExhibitionHeroProps = {
   exhibition: Exhibition;
   gallery: Gallery;
-}) {
+};
+
+export function ExhibitionHero({ exhibition: e, gallery: g }: ExhibitionHeroProps) {
   const galleryName = g.shortName ?? g.name;
   return (
     <Link
@@ -37,7 +36,7 @@ export function ExhibitionHero({
           {e.title}
         </h2>
         <p className="mt-2 text-sm text-white/85 sm:text-base">
-          {galleryName} · ~{formatDateShort(e.endDate)} · {formatPriceCompact(e.priceFrom, e.priceTo)}
+          {galleryName} · ends {formatDateShort(e.endDate)} · {formatPriceCompact(e.priceFrom, e.priceTo)}
         </p>
         <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-white">
           View exhibition <ArrowRight aria-hidden className="h-4 w-4" />

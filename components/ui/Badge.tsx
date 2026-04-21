@@ -3,15 +3,13 @@ import { cn } from '@/lib/utils';
 
 type Tone = 'neutral' | 'primary' | 'success' | 'warning' | 'info';
 
-export function Badge({
-  children,
-  tone = 'neutral',
-  className,
-}: {
+export type BadgeProps = {
   children: ReactNode;
   tone?: Tone;
   className?: string;
-}) {
+};
+
+export function Badge({ children, tone = 'neutral', className }: BadgeProps) {
   return (
     <span
       className={cn(

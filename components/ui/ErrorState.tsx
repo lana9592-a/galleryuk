@@ -3,9 +3,16 @@
 import { AlertTriangle, WifiOff, FileQuestion } from 'lucide-react';
 import { Button } from './Button';
 
-type Kind = '404' | '500' | 'offline' | 'generic';
+export type ErrorKind = '404' | '500' | 'offline' | 'generic';
 
-const iconFor: Record<Kind, typeof AlertTriangle> = {
+export type ErrorStateProps = {
+  kind?: ErrorKind;
+  title: string;
+  description?: string;
+  onRetry?: () => void;
+};
+
+const iconFor: Record<ErrorKind, typeof AlertTriangle> = {
   '404': FileQuestion,
   '500': AlertTriangle,
   offline: WifiOff,
@@ -17,12 +24,7 @@ export function ErrorState({
   title,
   description,
   onRetry,
-}: {
-  kind?: Kind;
-  title: string;
-  description?: string;
-  onRetry?: () => void;
-}) {
+}: ErrorStateProps) {
   const Icon = iconFor[kind];
   return (
     <div role="alert" className="flex flex-col items-center justify-center py-16 text-center">

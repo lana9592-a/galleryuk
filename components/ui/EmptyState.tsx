@@ -10,17 +10,14 @@ const linkAsButton = cn(
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-bg',
 );
 
-export function EmptyState({
-  icon,
-  title,
-  description,
-  action,
-}: {
+export type EmptyStateProps = {
   icon?: ReactNode;
   title: string;
   description?: string;
   action?: { label: string; href?: Route; onClick?: () => void };
-}) {
+};
+
+export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       {icon ? (

@@ -1,6 +1,10 @@
 import { cn } from '@/lib/utils';
 
-export function Skeleton({ className }: { className?: string }) {
+export type SkeletonProps = {
+  className?: string;
+};
+
+export function Skeleton({ className }: SkeletonProps) {
   return (
     <div
       aria-hidden
