@@ -25,10 +25,6 @@ export const metadata: Metadata = {
   },
   twitter: { card: 'summary_large_image' },
   robots: { index: true, follow: true },
-  icons: {
-    icon: [{ url: '/icons/icon.svg', type: 'image/svg+xml' }],
-    apple: [{ url: '/icons/apple-touch-icon.svg', type: 'image/svg+xml' }],
-  },
 };
 
 export const viewport: Viewport = {

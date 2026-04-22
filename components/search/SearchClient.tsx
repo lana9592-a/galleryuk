@@ -26,7 +26,7 @@ export function SearchClient({ galleries, initialQuery }: SearchClientProps) {
   const [results, setResults] = useState<Exhibition[] | null>(
     initialQuery ? null : [],
   );
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(Boolean(initialQuery));
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 

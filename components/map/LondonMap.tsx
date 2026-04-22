@@ -6,6 +6,7 @@ import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
 import { GalleryAvatar } from '@/components/gallery/GalleryAvatar';
 import { LONDON_CENTER } from '@/lib/constants';
+import { galleryHref } from '@/lib/routes';
 import type { Gallery } from '@/lib/schemas';
 
 export type LondonMapProps = {
@@ -125,7 +126,7 @@ export function LondonMap({ galleries, apiKey }: LondonMapProps) {
             </button>
           </div>
           <Link
-            href={`/galleries/${selected.id}` as never}
+            href={galleryHref(selected.id)}
             className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-md bg-text text-sm font-semibold text-white hover:bg-text/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
           >
             View gallery

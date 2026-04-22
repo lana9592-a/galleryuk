@@ -16,6 +16,7 @@ import {
 import { getExhibitionStatus } from '@/lib/schemas';
 import { formatDateRange, formatPrice } from '@/lib/format';
 import { CATEGORY_LABEL, SITE_NAME } from '@/lib/constants';
+import { galleryHref } from '@/lib/routes';
 
 export const revalidate = 3600;
 
@@ -177,7 +178,7 @@ export default async function ExhibitionDetailPage({
             Venue
           </h2>
           <Link
-            href={`/galleries/${gallery.id}` as never}
+            href={galleryHref(gallery.id)}
             className="flex items-center gap-4 rounded-lg border border-border bg-surface p-4 transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
           >
             <GalleryAvatar gallery={gallery} size={48} />

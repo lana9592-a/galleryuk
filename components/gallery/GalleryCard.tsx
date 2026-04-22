@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import type { Gallery } from '@/lib/schemas';
 import { GalleryAvatar } from './GalleryAvatar';
+import { galleryHref } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 
 export type GalleryCardProps = {
@@ -20,7 +21,7 @@ export function GalleryCard({
   const name = gallery.shortName ?? gallery.name;
   return (
     <Link
-      href={`/galleries/${gallery.id}` as never}
+      href={galleryHref(gallery.id)}
       className={cn(
         'flex items-center gap-4 rounded-lg border border-border bg-surface p-4 transition-colors',
         'hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus',

@@ -45,7 +45,8 @@ export function formatPriceCompact(
 
 export function getInitials(name: string): string {
   const words = name
-    .replace(/[^a-zA-Z\s&]/g, '')
+    .replace(/&/g, ' ')
+    .replace(/[^a-zA-Z\s]/g, '')
     .split(/\s+/)
     .filter(Boolean);
   if (words.length === 0) return '?';

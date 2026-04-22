@@ -96,11 +96,16 @@
 - [x] **Gate 4**: 리뷰 통과 → `docs/reviews/phase-4-20260421.md` (PASS, Minor 7 / Nit 4)
 
 ### Phase 5 — QA & 배포 (Week 5~6)
-- [ ] `agents/qa.md` 실행: 테스트 계획 수립 및 실행
-- [ ] Lighthouse 점수 Perf/A11y/Best/SEO ≥ 90
+- [x] Gate 4 우선 Minor 6건 반영 ([m-01]~[m-06]) — `docs/qa-report-20260421.md §2`
+- [x] `agents/qa.md` 실행: 테스트 계획 수립 및 정적 게이트 실행 — `docs/qa-plan.md`, `docs/qa-report-20260421.md`
+- [x] Vitest 단위 테스트 47건 그린 (`pnpm test`) — schemas/format/api/routes
+- [x] SEO 아티팩트 추가 — `app/robots.ts`, `app/sitemap.ts`, `app/opengraph-image.tsx`
+- [x] PNG 아이콘 PWA/HTML 레벨 정비 — `app/icon.tsx`, `app/apple-icon.tsx`
+- [x] SW 버전 자동화 — `scripts/build-sw.mjs` (`$BUILD_ID`/git sha/timestamp 폴백)
+- [ ] Lighthouse 점수 Perf/A11y/Best/SEO ≥ 90 (Preview URL 필요 — `docs/qa-plan.md §6`)
 - [ ] 모바일 실기기 테스트 (iOS Safari / Android Chrome)
 - [ ] PWA 설치 테스트
-- [ ] Vercel 프로덕션 배포
+- [ ] Vercel 프로덕션 배포 + Maps 키 referrer 제한
 - [ ] 도메인 연결 (선택)
 - [ ] **Gate 5 (최종)**: 모든 Acceptance Criteria 통과
 

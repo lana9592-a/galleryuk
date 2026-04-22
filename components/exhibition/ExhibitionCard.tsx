@@ -4,6 +4,7 @@ import type { Exhibition, Gallery } from '@/lib/schemas';
 import { getExhibitionStatus } from '@/lib/schemas';
 import { formatDateShort, formatPriceCompact } from '@/lib/format';
 import { CATEGORY_LABEL } from '@/lib/constants';
+import { exhibitionHref } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 
 export type ExhibitionCardVariant = 'default' | 'featured' | 'compact' | 'horizontal';
@@ -53,7 +54,7 @@ export function ExhibitionCard({
 
   return (
     <Link
-      href={`/exhibitions/${e.id}` as never}
+      href={exhibitionHref(e.id)}
       aria-label={accessibleName}
       className={cn(
         'group block overflow-hidden rounded-lg bg-surface transition-shadow',

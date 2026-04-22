@@ -6,6 +6,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { getAllExhibitions, getAllGalleries } from '@/lib/data';
 import { CategoryEnum, getExhibitionStatus } from '@/lib/schemas';
 import { CATEGORY_LABEL } from '@/lib/constants';
+import { exhibitionsHref } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 
 export const revalidate = 3600;
@@ -60,8 +61,7 @@ export default async function ExhibitionsPage({
     const q = new URLSearchParams();
     if (s !== 'all') q.set('status', s);
     if (c) q.set('category', c);
-    const qs = q.toString();
-    return (qs ? `/exhibitions?${qs}` : '/exhibitions') as never;
+    return exhibitionsHref(q);
   };
 
   return (

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import type { Exhibition, Gallery } from '@/lib/schemas';
 import { formatDateShort, formatPriceCompact } from '@/lib/format';
+import { exhibitionHref } from '@/lib/routes';
 
 export type ExhibitionHeroProps = {
   exhibition: Exhibition;
@@ -13,7 +14,7 @@ export function ExhibitionHero({ exhibition: e, gallery: g }: ExhibitionHeroProp
   const galleryName = g.shortName ?? g.name;
   return (
     <Link
-      href={`/exhibitions/${e.id}` as never}
+      href={exhibitionHref(e.id)}
       className="group relative block overflow-hidden rounded-xl bg-text text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
     >
       <div className="relative aspect-[16/9] w-full lg:aspect-[21/9]">

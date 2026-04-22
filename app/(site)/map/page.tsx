@@ -5,6 +5,7 @@ import { Container } from '@/components/ui/Container';
 import { GalleryAvatar } from '@/components/gallery/GalleryAvatar';
 import { LondonMap } from '@/components/map/LondonMap';
 import { getAllGalleries } from '@/lib/data';
+import { galleryHref } from '@/lib/routes';
 
 export const revalidate = 3600;
 
@@ -62,7 +63,7 @@ export default async function MapPage() {
           {galleries.map((g) => (
             <li key={g.id}>
               <Link
-                href={`/galleries/${g.id}` as never}
+                href={galleryHref(g.id)}
                 className="flex items-center gap-3 rounded-md border border-border bg-surface p-3 transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
               >
                 <GalleryAvatar gallery={g} size={32} />
