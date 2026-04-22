@@ -182,12 +182,15 @@ Route handlers are read-only for the MVP and live under `app/api/*`.
 
 ## Deployment
 
-Deploy to Vercel from this repository.
+Full step-by-step walkthrough (beginner-friendly, in Korean):
+[`docs/deployment.md`](./docs/deployment.md).
 
-1. Set `NEXT_PUBLIC_SITE_URL` to your canonical URL.
-2. Set `NEXT_PUBLIC_GMAPS_KEY` if you want the interactive map.
-3. In Google Cloud Console, restrict the key to your production domains
-   by HTTP referrer.
+Short version:
+
+1. Import this repo into Vercel (Framework Preset auto-detects Next.js).
+2. Set `NEXT_PUBLIC_SITE_URL` to your canonical URL.
+3. Set `NEXT_PUBLIC_GMAPS_KEY` if you want the interactive map;
+   restrict the key by HTTP referrer in Google Cloud Console.
 4. Deploy — `main` is Production, `claude/*` branches are Preview.
 
 ## Roadmap

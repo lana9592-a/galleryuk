@@ -102,12 +102,29 @@
 - [x] SEO 아티팩트 추가 — `app/robots.ts`, `app/sitemap.ts`, `app/opengraph-image.tsx`
 - [x] PNG 아이콘 PWA/HTML 레벨 정비 — `app/icon.tsx`, `app/apple-icon.tsx`
 - [x] SW 버전 자동화 — `scripts/build-sw.mjs` (`$BUILD_ID`/git sha/timestamp 폴백)
+- [x] Vercel 배포 가이드 — `docs/deployment.md` (초보자용 step-by-step)
+- [ ] **⏳ 사용자 작업**: `docs/deployment.md` 따라 Vercel Preview 배포 → URL 확보
 - [ ] Lighthouse 점수 Perf/A11y/Best/SEO ≥ 90 (Preview URL 필요 — `docs/qa-plan.md §6`)
-- [ ] 모바일 실기기 테스트 (iOS Safari / Android Chrome)
+- [ ] axe-core 접근성 스캔 0 violation (Preview URL + Playwright 필요)
+- [ ] 모바일 실기기 테스트 (iOS Safari / Android Chrome, 최소 3개 환경)
 - [ ] PWA 설치 테스트
-- [ ] Vercel 프로덕션 배포 + Maps 키 referrer 제한
+- [ ] Vercel 프로덕션 배포 + Maps 키 HTTP referrer 제한 확인
 - [ ] 도메인 연결 (선택)
 - [ ] **Gate 5 (최종)**: 모든 Acceptance Criteria 통과
+
+#### 🔔 다음 세션 재진입 가이드 (PM 본인용)
+
+이 프로젝트는 현재 **정적 게이트는 전부 그린**, **동적 게이트는 Preview URL 대기 중** 상태입니다.
+새 세션이 시작되면 사용자가 아래 패턴 중 하나를 보낼 수 있으니 맞춰 대응:
+
+| 사용자 메시지 형태 | 대응 |
+|---|---|
+| "Preview URL은 `https://...` 야" 또는 URL 단독 | Playwright + Lighthouse 스켈레톤 깔고 해당 URL로 돌리기. 결과를 `docs/qa-report-<date>.md`에 추가. |
+| "배포 끝났어 / 다음 단계?" | 위 체크리스트의 남은 `[ ]` 항목을 순서대로 안내 (Lighthouse → axe → 실기기 → 프로덕션 승격). |
+| "배포 에러 났어: <로그>" | `docs/deployment.md §7` 트러블슈팅 기준으로 진단. |
+| "계속해줘" 만 | 사용자 의향 재확인. 기본 추천: E2E/Lighthouse CI 스켈레톤을 로컬 `pnpm start` 대상으로 미리 깔아두기 (B 옵션). |
+
+사용자는 **개발 초보자**이므로 한 번에 한 단계씩, 클릭/명령어 레벨로 안내할 것.
 
 ---
 
