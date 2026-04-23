@@ -1,0 +1,162 @@
+[
+  {
+    "id": "tate-modern",
+    "name": "Tate Modern",
+    "lat": 51.5076,
+    "lng": -0.0994,
+    "address": "Bankside, London SE1 9TG",
+    "city": "London",
+    "borough": "Southwark",
+    "website": "https://www.tate.org.uk/visit/tate-modern",
+    "openingHours": {
+      "mon": "10:00-18:00",
+      "tue": "10:00-18:00",
+      "wed": "10:00-18:00",
+      "thu": "10:00-18:00",
+      "fri": "10:00-22:00",
+      "sat": "10:00-22:00",
+      "sun": "10:00-18:00"
+    },
+    "description": "Britain's national gallery of international modern and contemporary art, housed in a former power station on the south bank of the Thames.",
+    "tags": ["modern", "contemporary", "free-entry"]
+  },
+  {
+    "id": "tate-britain",
+    "name": "Tate Britain",
+    "lat": 51.491,
+    "lng": -0.1276,
+    "address": "Millbank, London SW1P 4RG",
+    "city": "London",
+    "borough": "Westminster",
+    "website": "https://www.tate.org.uk/visit/tate-britain",
+    "openingHours": {
+      "mon": "10:00-18:00",
+      "tue": "10:00-18:00",
+      "wed": "10:00-18:00",
+      "thu": "10:00-18:00",
+      "fri": "10:00-18:00",
+      "sat": "10:00-18:00",
+      "sun": "10:00-18:00"
+    },
+    "description": "Home of British art from 1500 to the present day, including the world's largest collection of works by J.M.W. Turner.",
+    "tags": ["british-art", "free-entry"]
+  },
+  {
+    "id": "national-gallery",
+    "name": "The National Gallery",
+    "shortName": "National Gallery",
+    "lat": 51.5089,
+    "lng": -0.1283,
+    "address": "Trafalgar Square, London WC2N 5DN",
+    "city": "London",
+    "borough": "Westminster",
+    "website": "https://www.nationalgallery.org.uk",
+    "openingHours": {
+      "mon": "10:00-18:00",
+      "tue": "10:00-18:00",
+      "wed": "10:00-18:00",
+      "thu": "10:00-18:00",
+      "fri": "10:00-21:00",
+      "sat": "10:00-18:00",
+      "sun": "10:00-18:00"
+    },
+    "description": "Founded in 1824, the National Gallery houses one of the greatest collections of Western European paintings.",
+    "tags": ["painting", "historical", "free-entry"]
+  },
+  {
+    "id": "va",
+    "name": "Victoria and Albert Museum",
+    "shortName": "V&A",
+    "lat": 51.4966,
+    "lng": -0.1722,
+    "address": "Cromwell Road, London SW7 2RL",
+    "city": "London",
+    "borough": "Kensington and Chelsea",
+    "website": "https://www.vam.ac.uk",
+    "openingHours": {
+      "mon": "10:00-17:45",
+      "tue": "10:00-17:45",
+      "wed": "10:00-17:45",
+      "thu": "10:00-17:45",
+      "fri": "10:00-22:00",
+      "sat": "10:00-17:45",
+      "sun": "10:00-17:45"
+    },
+    "description": "The world's leading museum of art, design and performance, with collections unrivalled in their scope and diversity.",
+    "tags": ["design", "decorative-arts"]
+  },
+  {
+    "id": "royal-academy",
+    "name": "Royal Academy of Arts",
+    "shortName": "Royal Academy",
+    "lat": 51.5095,
+    "lng": -0.1393,
+    "address": "Burlington House, Piccadilly, London W1J 0BD",
+    "city": "London",
+    "borough": "Westminster",
+    "website": "https://www.royalacademy.org.uk",
+    "description": "An independent institution founded in 1768, the RA programmes a celebrated schedule of temporary exhibitions.",
+    "tags": ["historical", "temporary-shows"]
+  },
+  {
+    "id": "serpentine",
+    "name": "Serpentine Galleries",
+    "lat": 51.5055,
+    "lng": -0.1754,
+    "address": "Kensington Gardens, London W2 3XA",
+    "city": "London",
+    "borough": "Westminster",
+    "website": "https://www.serpentinegalleries.org",
+    "description": "Two galleries in Kensington Gardens presenting pioneering exhibitions of modern and contemporary art.",
+    "tags": ["contemporary", "free-entry"]
+  },
+  {
+    "id": "hayward",
+    "name": "Hayward Gallery",
+    "lat": 51.5065,
+    "lng": -0.1163,
+    "address": "Southbank Centre, Belvedere Road, London SE1 8XX",
+    "city": "London",
+    "borough": "Lambeth",
+    "website": "https://www.southbankcentre.co.uk/venues/hayward-gallery",
+    "description": "A publicly funded contemporary art gallery located on London's South Bank, known for major ambitious exhibitions.",
+    "tags": ["contemporary", "brutalist"]
+  },
+  {
+    "id": "whitechapel",
+    "name": "Whitechapel Gallery",
+    "lat": 51.5163,
+    "lng": -0.0707,
+    "address": "77-82 Whitechapel High Street, London E1 7QX",
+    "city": "London",
+    "borough": "Tower Hamlets",
+    "website": "https://www.whitechapelgallery.org",
+    "description": "Founded in 1901 to bring great art to the people of east London, with a long history of exhibiting pioneering artists.",
+    "tags": ["contemporary", "east-london", "free-entry"]
+  },
+  {
+    "id": "saatchi",
+    "name": "Saatchi Gallery",
+    "lat": 51.4911,
+    "lng": -0.1596,
+    "address": "Duke of York's HQ, King's Road, London SW3 4RY",
+    "city": "London",
+    "borough": "Kensington and Chelsea",
+    "website": "https://saatchigallery.com",
+    "description": "A gallery for contemporary art, providing an innovative forum for emerging and unseen artists.",
+    "tags": ["contemporary", "emerging-artists"]
+  },
+  {
+    "id": "courtauld",
+    "name": "The Courtauld Gallery",
+    "shortName": "Courtauld",
+    "lat": 51.5114,
+    "lng": -0.1174,
+    "address": "Somerset House, Strand, London WC2R 0RN",
+    "city": "London",
+    "borough": "Westminster",
+    "website": "https://courtauld.ac.uk",
+    "description": "Housing one of the greatest small collections of art in the world, including iconic Impressionist and Post-Impressionist works.",
+    "tags": ["impressionist", "historical"]
+  }
+]
