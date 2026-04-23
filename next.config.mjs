@@ -6,6 +6,7 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'picsum.photos' },
       { protocol: 'https', hostname: 'www.tate.org.uk' },
       { protocol: 'https', hostname: 'www.nationalgallery.org.uk' },
       { protocol: 'https', hostname: 'www.vam.ac.uk' },
