@@ -76,7 +76,7 @@ export function ExhibitionCard({
           className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
         />
       </div>
-      <div className="space-y-1 pt-3">
+      <div className="space-y-1 px-2 pb-3 pt-3">
         <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-text-muted">
           <span>{CATEGORY_LABEL[e.category]}</span>
           <span aria-hidden>·</span>
