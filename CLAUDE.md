@@ -109,8 +109,8 @@
 - [x] 모바일 실기기 테스트 (사용자 확인 — 2026-04-24)
 - [x] PWA 설치 테스트 (사용자 확인 — 2026-04-24)
 - [x] Vercel 프로덕션 배포 (Hobby 기본 alias `galleryuk.vercel.app` 활성화, `main` 자동 배포)
-- [ ] Maps 키 HTTP referrer 제한 (v1.0 선택 — 현재는 key 미설정, `/map` 리스트 fallback)
-- [ ] 도메인 연결 (v1.0 선택 — 커스텀 도메인 미확보)
+- [x] Maps 키 HTTP referrer 제한 (완료 — `galleryuk.vercel.app/*` + `localhost:3000/*`, Maps JavaScript API only)
+- [ ] 도메인 연결 (v1.0 선택 — 커스텀 도메인 미확보, 사용자가 추후 결정)
 - [x] **Gate 5 (최종)**: 모든 Acceptance Criteria 통과 — `docs/reviews/phase-5-20260424.md` (PASS)
 
 #### 🔔 다음 세션 재진입 가이드 (PM 본인용)
