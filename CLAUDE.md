@@ -103,14 +103,15 @@
 - [x] PNG 아이콘 PWA/HTML 레벨 정비 — `app/icon.tsx`, `app/apple-icon.tsx`
 - [x] SW 버전 자동화 — `scripts/build-sw.mjs` (`$BUILD_ID`/git sha/timestamp 폴백)
 - [x] Vercel 배포 가이드 — `docs/deployment.md` (초보자용 step-by-step)
-- [ ] **⏳ 사용자 작업**: `docs/deployment.md` 따라 Vercel Preview 배포 → URL 확보
-- [ ] Lighthouse 점수 Perf/A11y/Best/SEO ≥ 90 (Preview URL 필요 — `docs/qa-plan.md §6`)
-- [ ] axe-core 접근성 스캔 0 violation (Preview URL + Playwright 필요)
-- [ ] 모바일 실기기 테스트 (iOS Safari / Android Chrome, 최소 3개 환경)
-- [ ] PWA 설치 테스트
-- [ ] Vercel 프로덕션 배포 + Maps 키 HTTP referrer 제한 확인
-- [ ] 도메인 연결 (선택)
-- [ ] **Gate 5 (최종)**: 모든 Acceptance Criteria 통과
+- [x] **사용자 작업 완료**: Vercel Preview 배포 → `https://galleryuk.vercel.app` 확보 (2026-04-24)
+- [x] Lighthouse 점수 Perf/A11y/Best/SEO ≥ 90 — Mobile 97/100/100/92, Desktop 100/100/100/92 (`docs/qa-report-20260421.md`)
+- [x] axe-core 접근성 스캔 0 violation (axe DevTools on live Preview — 0 site issues)
+- [x] 모바일 실기기 테스트 (사용자 확인 — 2026-04-24)
+- [x] PWA 설치 테스트 (사용자 확인 — 2026-04-24)
+- [x] Vercel 프로덕션 배포 (Hobby 기본 alias `galleryuk.vercel.app` 활성화, `main` 자동 배포)
+- [ ] Maps 키 HTTP referrer 제한 (v1.0 선택 — 현재는 key 미설정, `/map` 리스트 fallback)
+- [ ] 도메인 연결 (v1.0 선택 — 커스텀 도메인 미확보)
+- [x] **Gate 5 (최종)**: 모든 Acceptance Criteria 통과 — `docs/reviews/phase-5-20260424.md` (PASS)
 
 #### 🔔 다음 세션 재진입 가이드 (PM 본인용)
 
