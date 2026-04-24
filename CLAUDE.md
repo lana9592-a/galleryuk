@@ -103,8 +103,8 @@
 - [x] PNG 아이콘 PWA/HTML 레벨 정비 — `app/icon.tsx`, `app/apple-icon.tsx`
 - [x] SW 버전 자동화 — `scripts/build-sw.mjs` (`$BUILD_ID`/git sha/timestamp 폴백)
 - [x] Vercel 배포 가이드 — `docs/deployment.md` (초보자용 step-by-step)
-- [ ] **⏳ 사용자 작업**: `docs/deployment.md` 따라 Vercel Preview 배포 → URL 확보
-- [ ] Lighthouse 점수 Perf/A11y/Best/SEO ≥ 90 (Preview URL 필요 — `docs/qa-plan.md §6`)
+- [x] **사용자 작업 완료**: Vercel Preview 배포 → `https://galleryuk.vercel.app` 확보 (2026-04-24)
+- [x] Lighthouse 점수 Perf/A11y/Best/SEO ≥ 90 — Mobile 97/100/100/92, Desktop 100/100/100/92 (`docs/qa-report-20260421.md`)
 - [ ] axe-core 접근성 스캔 0 violation (Preview URL + Playwright 필요)
 - [ ] 모바일 실기기 테스트 (iOS Safari / Android Chrome, 최소 3개 환경)
 - [ ] PWA 설치 테스트
