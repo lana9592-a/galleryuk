@@ -36,16 +36,20 @@ export function LondonMap({ galleries, apiKey }: LondonMapProps) {
   const [selected, setSelected] = useState<LondonMapProps['galleries'][number] | null>(
     null,
   );
-  const mapRef = useRef<google.maps.Map | null>(null);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
   const clustererRef = useRef<MarkerClusterer | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
 
-  const onLoad = useCallback((map: google.maps.Map) => {
-    mapRef.current = map;
+  const onLoad = useCallback((instance: google.maps.Map) => {
+    setMap(instance);
+  }, []);
+
+  const onUnmount = useCallback(() => {
+    setMap(null);
   }, []);
 
   useEffect(() => {
-    if (!isLoaded || !mapRef.current) return;
+    if (!isLoaded || !map) return;
     for (const m of markersRef.current) m.setMap(null);
     clustererRef.current?.clearMarkers();
 
@@ -58,14 +62,14 @@ export function LondonMap({ galleries, apiKey }: LondonMapProps) {
       return marker;
     });
     markersRef.current = markers;
-    clustererRef.current = new MarkerClusterer({ map: mapRef.current, markers });
+    clustererRef.current = new MarkerClusterer({ map, markers });
 
     return () => {
       for (const m of markers) m.setMap(null);
       clustererRef.current?.clearMarkers();
       clustererRef.current = null;
     };
-  }, [isLoaded, galleries]);
+  }, [isLoaded, map, galleries]);
 
   const center = useMemo(
     () => ({ lat: LONDON_CENTER.lat, lng: LONDON_CENTER.lng }),
@@ -101,6 +105,7 @@ export function LondonMap({ galleries, apiKey }: LondonMapProps) {
           options={MAP_OPTIONS}
           mapContainerStyle={CONTAINER_STYLE}
           onLoad={onLoad}
+          onUnmount={onUnmount}
         />
       </div>
       {selected ? (
