@@ -129,6 +129,51 @@
 
 ---
 
+## v1.1 — 데이터 레이어 + 개인화 (시작 2026-04-25)
+
+v1.0 MVP 완성 후 시작. JSON seed → Supabase Postgres로 전환하고, 그 위에 CMS·즐겨찾기·알림을 점진적으로 쌓는 다단계 트랙입니다.
+
+### Sub-phase 로드맵
+
+| Sub-phase | 목표 | 상태 |
+|---|---|---|
+| **B**. Supabase 마이그레이션 | JSON → Postgres, `lib/data.ts` 인터페이스 유지, 페이지 그대로 동작 | 🔄 진행 중 |
+| C. 어드민 CMS | 브라우저에서 갤러리/전시 CRUD | ⏳ |
+| A'. 데이터 리프레시 | V&A East Storehouse 등 실 갤러리·전시로 채우기 (CMS 사용) | ⏳ |
+| D. 즐겨찾기 + Auth | Supabase Auth + 사용자별 saved exhibitions | ⏳ |
+| E. 알림 | 시작/종료 임박 이메일 | ⏳ |
+
+> 원래 v1.0에서 우선순위 A(데이터)였지만, B 먼저 가는 게 노력 대비 결과 큼 (어차피 옮길 데이터는 한 번만 입력하는 게 유리). 데이터는 `A'`로 리네이밍해서 CMS 이후로 미룸.
+
+### Phase B 체크리스트
+
+- [ ] B-1: 사용자 — Supabase 가입 (GitHub 로그인) + `galleryuk` 프로젝트 생성 (London region)
+- [ ] B-2: Claude — `galleries`, `exhibitions` 테이블 스키마 SQL 생성 → 사용자가 SQL Editor에 붙여넣기
+- [ ] B-3: Claude — 현재 `public/data/*.json` → SQL INSERT 생성 → 사용자 실행
+- [ ] B-4: 사용자 — Settings → API에서 URL + anon key 복사해서 Vercel env 등록 (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
+- [ ] B-5: Claude — `@supabase/supabase-js` 추가, `lib/data.ts` Supabase 쿼리로 교체 (인터페이스 동일 유지), 단위 테스트 그린 유지
+- [ ] B-6: 사용자 — PR merge → Vercel 재배포 → 모든 페이지 동작 확인 (홈/전시/갤러리/검색/지도)
+- [ ] **Gate B**: Blocker 0, 모든 페이지 정상, Lighthouse Mobile Perf ≥ 90 유지
+
+### Phase B 설계 결정
+
+- **Service role key는 코드에 안 쓴다** — 모든 쿼리는 anon key + RLS read-only policy로 충분 (MVP는 read-only 페이지만)
+- **API surface 불변** — `getAllGalleries`, `getExhibition` 등 함수 시그니처 그대로 유지. 페이지 코드 수정 0
+- **JSON 파일은 보존** — `public/data/*.json` 유지 (참조용, 시드 재실행 가능)
+- **빌드 타임 SSG 유지** — `revalidate = 3600` 그대로, Supabase에서 데이터 가져와도 정적 페이지로 prerender
+
+### 다음 세션 재진입 가이드 (PM 본인용)
+
+| 사용자 메시지 형태 | 대응 |
+|---|---|
+| "Supabase 프로젝트 만들었어" | B-2 (스키마 SQL) 진행 |
+| "테이블 만들었어" / "스키마 박았어" | B-3 (seed INSERT) 진행 |
+| "Vercel에 키 등록했어" | B-5 (코드 마이그레이션) 진행 |
+| "재배포 끝났어 / 사이트 잘 떠" | Gate B 검증 후 다음 sub-phase 안내 |
+| "에러 떴어: <로그>" | 단계별 트러블슈팅 |
+
+---
+
 ## 4. 기술 스택 (확정)
 
 | 레이어 | 선택 | 이유 |
