@@ -137,8 +137,8 @@ v1.0 MVP 완성 후 시작. JSON seed → Supabase Postgres로 전환하고, 그
 
 | Sub-phase | 목표 | 상태 |
 |---|---|---|
-| **B**. Supabase 마이그레이션 | JSON → Postgres, `lib/data.ts` 인터페이스 유지, 페이지 그대로 동작 | 🔄 진행 중 |
-| C. 어드민 CMS | 브라우저에서 갤러리/전시 CRUD | ⏳ |
+| **B**. Supabase 마이그레이션 | JSON → Postgres, `lib/data.ts` 인터페이스 유지, 페이지 그대로 동작 | ✅ 완료 (2026-05-03, Lighthouse Mobile Perf 98) |
+| C. 어드민 CMS | 브라우저에서 갤러리/전시 CRUD | 🔄 다음 |
 | A'. 데이터 리프레시 | V&A East Storehouse 등 실 갤러리·전시로 채우기 (CMS 사용) | ⏳ |
 | D. 즐겨찾기 + Auth | Supabase Auth + 사용자별 saved exhibitions | ⏳ |
 | E. 알림 | 시작/종료 임박 이메일 | ⏳ |
@@ -147,13 +147,13 @@ v1.0 MVP 완성 후 시작. JSON seed → Supabase Postgres로 전환하고, 그
 
 ### Phase B 체크리스트
 
-- [ ] B-1: 사용자 — Supabase 가입 (GitHub 로그인) + `galleryuk` 프로젝트 생성 (London region)
-- [ ] B-2: Claude — `galleries`, `exhibitions` 테이블 스키마 SQL 생성 → 사용자가 SQL Editor에 붙여넣기
-- [ ] B-3: Claude — 현재 `public/data/*.json` → SQL INSERT 생성 → 사용자 실행
-- [ ] B-4: 사용자 — Settings → API에서 URL + anon key 복사해서 Vercel env 등록 (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
-- [ ] B-5: Claude — `@supabase/supabase-js` 추가, `lib/data.ts` Supabase 쿼리로 교체 (인터페이스 동일 유지), 단위 테스트 그린 유지
-- [ ] B-6: 사용자 — PR merge → Vercel 재배포 → 모든 페이지 동작 확인 (홈/전시/갤러리/검색/지도)
-- [ ] **Gate B**: Blocker 0, 모든 페이지 정상, Lighthouse Mobile Perf ≥ 90 유지
+- [x] B-1: 사용자 — Supabase 가입 (GitHub 로그인) + `galleryuk` 프로젝트 생성 (London region)
+- [x] B-2: Claude — `galleries`, `exhibitions` 테이블 스키마 SQL 생성 → 사용자가 SQL Editor에 붙여넣기 (`supabase/schema.sql`)
+- [x] B-3: Claude — 현재 `public/data/*.json` → SQL INSERT 생성 → 사용자 실행 (`scripts/build-seed-sql.mjs` → `supabase/seed.sql`, 10 갤러리 / 16 전시)
+- [x] B-4: 사용자 — Settings → API에서 URL + anon key 복사해서 Vercel env 등록 (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`) — URL 끝의 `/rest/v1/` 슬래시 제거 트러블슈팅 1회
+- [x] B-5: Claude — `@supabase/supabase-js` 추가, `lib/data.ts` Supabase 쿼리로 교체 (인터페이스 동일 유지), `lib/supabase.ts` lazy 싱글톤, 단위 테스트 47/47 그린 유지
+- [x] B-6: 사용자 — PR merge → Vercel 재배포 → 모든 페이지 동작 확인 (홈/전시/갤러리/검색/지도)
+- [x] **Gate B**: Blocker 0, 모든 페이지 정상, **Lighthouse Mobile Perf 98** (목표 ≥ 90 충족)
 
 ### Phase B 설계 결정
 
