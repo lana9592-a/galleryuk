@@ -1,6 +1,5 @@
 import 'server-only';
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
+import { cache } from 'react';
 import {
   ExhibitionSchema,
   GallerySchema,
@@ -8,91 +7,100 @@ import {
   type Gallery,
   getExhibitionStatus,
 } from './schemas';
+import { getSupabase } from './supabase';
 
-type Cache = {
-  galleries: Gallery[];
-  exhibitions: Exhibition[];
-  galleryById: Map<string, Gallery>;
-  exhibitionById: Map<string, Exhibition>;
-} | null;
+type Row = Record<string, unknown>;
 
-let cache: Cache = null;
-
-async function loadOnce(): Promise<NonNullable<Cache>> {
-  if (cache) return cache;
-
-  const dataDir = path.join(process.cwd(), 'public', 'data');
-  const [galleriesRaw, exhibitionsRaw] = await Promise.all([
-    fs.readFile(path.join(dataDir, 'galleries.json'), 'utf8'),
-    fs.readFile(path.join(dataDir, 'exhibitions.json'), 'utf8'),
-  ]);
-
-  const galleries = GallerySchema.array().parse(JSON.parse(galleriesRaw));
-  const exhibitions = ExhibitionSchema.array().parse(JSON.parse(exhibitionsRaw));
-
-  const galleryById = new Map(galleries.map((g) => [g.id, g]));
-  for (const ex of exhibitions) {
-    if (!galleryById.has(ex.galleryId)) {
-      throw new Error(
-        `Data integrity: exhibition "${ex.id}" references unknown galleryId "${ex.galleryId}"`,
-      );
-    }
-  }
-
-  cache = {
-    galleries: [...galleries].sort((a, b) => a.name.localeCompare(b.name)),
-    exhibitions,
-    galleryById,
-    exhibitionById: new Map(exhibitions.map((e) => [e.id, e])),
-  };
-  return cache;
+function mapGalleryRow(row: Row): Gallery {
+  return GallerySchema.parse({
+    id: row.id,
+    name: row.name,
+    shortName: row.short_name ?? undefined,
+    lat: Number(row.lat),
+    lng: Number(row.lng),
+    address: row.address,
+    city: row.city ?? 'London',
+    borough: row.borough ?? undefined,
+    website: row.website,
+    logoUrl: row.logo_url ?? undefined,
+    openingHours: row.opening_hours ?? undefined,
+    description: row.description ?? undefined,
+    tags: row.tags ?? undefined,
+  });
 }
 
-export async function getAllGalleries(): Promise<Gallery[]> {
-  const d = await loadOnce();
-  return d.galleries;
+function mapExhibitionRow(row: Row): Exhibition {
+  return ExhibitionSchema.parse({
+    id: row.id,
+    title: row.title,
+    galleryId: row.gallery_id,
+    startDate: row.start_date,
+    endDate: row.end_date,
+    priceFrom: row.price_from === null ? undefined : Number(row.price_from),
+    priceTo: row.price_to === null ? undefined : Number(row.price_to),
+    ticketUrl: row.ticket_url ?? undefined,
+    category: row.category,
+    tags: row.tags ?? undefined,
+    summary: row.summary,
+    description: row.description,
+    artists: row.artists ?? undefined,
+    curator: row.curator ?? undefined,
+    heroImage: row.hero_image,
+    heroImageAlt: row.hero_image_alt,
+    images: row.images ?? undefined,
+    featured: row.featured ?? false,
+  });
 }
 
-export async function getGallery(id: string): Promise<Gallery | null> {
-  const d = await loadOnce();
-  return d.galleryById.get(id) ?? null;
-}
+export const getAllGalleries = cache(async (): Promise<Gallery[]> => {
+  const { data, error } = await getSupabase()
+    .from('galleries')
+    .select('*')
+    .order('name', { ascending: true });
+  if (error) throw new Error(`Supabase galleries fetch failed: ${error.message}`);
+  return (data ?? []).map((row) => mapGalleryRow(row as Row));
+});
 
-export async function getAllExhibitions(): Promise<Exhibition[]> {
-  const d = await loadOnce();
-  return d.exhibitions;
-}
+export const getAllExhibitions = cache(async (): Promise<Exhibition[]> => {
+  const { data, error } = await getSupabase().from('exhibitions').select('*');
+  if (error) throw new Error(`Supabase exhibitions fetch failed: ${error.message}`);
+  return (data ?? []).map((row) => mapExhibitionRow(row as Row));
+});
 
-export async function getExhibition(id: string): Promise<Exhibition | null> {
-  const d = await loadOnce();
-  return d.exhibitionById.get(id) ?? null;
-}
+export const getGallery = cache(async (id: string): Promise<Gallery | null> => {
+  const all = await getAllGalleries();
+  return all.find((g) => g.id === id) ?? null;
+});
+
+export const getExhibition = cache(async (id: string): Promise<Exhibition | null> => {
+  const all = await getAllExhibitions();
+  return all.find((e) => e.id === id) ?? null;
+});
 
 export async function getExhibitionsByStatus(
   status: 'now' | 'upcoming',
   limit?: number,
 ): Promise<Exhibition[]> {
-  const d = await loadOnce();
+  const all = await getAllExhibitions();
   const now = new Date();
-  const filtered = d.exhibitions.filter((e) => getExhibitionStatus(e, now) === status);
+  const filtered = all.filter((e) => getExhibitionStatus(e, now) === status);
   const sorted =
     status === 'now'
-      ? filtered.sort((a, b) => a.endDate.localeCompare(b.endDate)) // ending soonest first
+      ? filtered.sort((a, b) => a.endDate.localeCompare(b.endDate))
       : filtered.sort((a, b) => a.startDate.localeCompare(b.startDate));
   return limit ? sorted.slice(0, limit) : sorted;
 }
 
 export async function getExhibitionsByGallery(galleryId: string): Promise<Exhibition[]> {
-  const d = await loadOnce();
-  return d.exhibitions
+  const all = await getAllExhibitions();
+  return all
     .filter((e) => e.galleryId === galleryId)
     .sort((a, b) => a.startDate.localeCompare(b.startDate));
 }
 
 export async function getFeaturedExhibition(): Promise<Exhibition | null> {
-  const d = await loadOnce();
+  const all = await getAllExhibitions();
   const now = new Date();
-  const currentlyOn = d.exhibitions.filter((e) => getExhibitionStatus(e, now) === 'now');
-  const featured = currentlyOn.find((e) => e.featured === true);
-  return featured ?? currentlyOn[0] ?? null;
+  const currentlyOn = all.filter((e) => getExhibitionStatus(e, now) === 'now');
+  return currentlyOn.find((e) => e.featured === true) ?? currentlyOn[0] ?? null;
 }
