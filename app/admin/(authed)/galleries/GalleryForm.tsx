@@ -3,10 +3,9 @@
 import { useFormState, useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import type { Gallery } from '@/lib/schemas';
-import {
-  initialGalleryFormState,
-  type GalleryFormState,
-} from './actions';
+import type { GalleryFormState } from './actions';
+
+const initialGalleryFormState: GalleryFormState = { status: 'idle' };
 
 type Mode = 'create' | 'edit';
 

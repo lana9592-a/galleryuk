@@ -15,8 +15,6 @@ export type GalleryFormState = {
   fieldErrors?: FieldErrors;
 };
 
-const idle: GalleryFormState = { status: 'idle' };
-
 async function assertAdmin(): Promise<void> {
   const supabase = createSupabaseServerClient();
   const {
@@ -211,5 +209,3 @@ export async function deleteGallery(formData: FormData): Promise<void> {
   revalidatePublic();
   redirect('/admin/galleries');
 }
-
-export const initialGalleryFormState = idle;
