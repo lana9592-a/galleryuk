@@ -174,6 +174,44 @@ v1.0 MVP 완성 후 시작. JSON seed → Supabase Postgres로 전환하고, 그
 
 ---
 
+## v1.1 Phase C — 어드민 CMS (시작 2026-05-03)
+
+`/admin` 라우트 아래에 본인 전용 CMS. magic link 로그인 → 갤러리/전시 CRUD.
+
+### Phase C 체크리스트
+
+- [x] C-1: 사용자 — Supabase Authentication > Email provider ON, Users 탭에서 본인 계정 수동 추가
+- [x] C-2: 사용자 — Vercel env에 `ADMIN_EMAIL`, `SUPABASE_SERVICE_ROLE_KEY` 등록 (둘 다 NEXT_PUBLIC 접두사 X)
+- [x] C-3: Claude — Supabase 클라이언트 3종 (`lib/supabase-server.ts`, `lib/supabase-admin.ts`, `lib/supabase-browser.ts`)
+- [x] C-4: Claude — `/admin/login` 페이지 (`LoginForm.tsx`) + `sendMagicLink` Server Action (`actions.ts`)
+- [x] C-5: Claude — `/admin/auth/callback/route.ts` 코드 교환 + 세션 쿠키
+- [x] C-6: Claude — `app/admin/(authed)/layout.tsx` auth gate (ADMIN_EMAIL 매칭 검증, 실패 시 `/admin/login` 리다이렉트)
+- [x] C-7: Claude — `/admin` 대시보드 (galleries/exhibitions count) + `/admin/logout` POST 라우트, stub 페이지 `/admin/galleries`, `/admin/exhibitions`
+- [ ] C-8: Claude — `/admin/galleries` CRUD (list / create / edit / delete)
+- [ ] C-9: Claude — `/admin/exhibitions` CRUD
+- [ ] C-10: Claude — 단위/통합 테스트 보강
+- [ ] C-11: 사용자 — PR merge + Supabase URL Configuration의 Redirect URLs에 `https://galleryuk.vercel.app/admin/auth/callback` 추가 + 로그인 + 대시보드 진입 테스트
+- [ ] **Gate C**: Blocker 0, magic link 로그인 동작, 갤러리·전시 CRUD 다 작동
+
+### Phase C 설계 결정
+
+- **Service-role 키는 서버 전용** — `lib/supabase-admin.ts` 는 `'server-only'` 마킹, 환경변수 이름도 `NEXT_PUBLIC_` 접두사 없음
+- **모든 쓰기는 Server Actions** — 클라이언트엔 service role 절대 노출 금지
+- **`/admin/(authed)` route group** — URL 영향 없이 layout만 공유. login/callback 페이지는 그룹 밖 (인증 게이트 통과 안 해도 됨)
+- **Magic link 발송 노출 최소화** — 누가 요청해도 200 OK; 실제 발송은 admin 이메일 일치 시에만 (timing attack 회피)
+- **`shouldCreateUser: false`** — magic link로는 새 사용자 못 만듦. 본인 계정은 Supabase Users 탭에서 수동 생성
+
+### 다음 세션 재진입 가이드 (Phase C 후속)
+
+| 사용자 메시지 형태 | 대응 |
+|---|---|
+| "C 환경변수 다 등록했어" | C-3~C-7 코드 작성 (이번 세션에 완료) |
+| "merge 했고 로그인 됐어" | C-8 (galleries CRUD) 시작 |
+| "redirect URL 못 받아 / 매직 링크 안 와" | Supabase URL Configuration + 메일 폴더(스팸함) 확인 안내 |
+| "C-8부터 시작해줘" | galleries CRUD 폼 작성 시작 |
+
+---
+
 ## 4. 기술 스택 (확정)
 
 | 레이어 | 선택 | 이유 |
