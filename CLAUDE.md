@@ -137,8 +137,8 @@ v1.0 MVP 완성 후 시작. JSON seed → Supabase Postgres로 전환하고, 그
 
 | Sub-phase | 목표 | 상태 |
 |---|---|---|
-| **B**. Supabase 마이그레이션 | JSON → Postgres, `lib/data.ts` 인터페이스 유지, 페이지 그대로 동작 | 🔄 진행 중 |
-| C. 어드민 CMS | 브라우저에서 갤러리/전시 CRUD | ⏳ |
+| **B**. Supabase 마이그레이션 | JSON → Postgres, `lib/data.ts` 인터페이스 유지, 페이지 그대로 동작 | ✅ 완료 (2026-05-03, Lighthouse Mobile Perf 98) |
+| C. 어드민 CMS | 브라우저에서 갤러리/전시 CRUD | 🔄 다음 |
 | A'. 데이터 리프레시 | V&A East Storehouse 등 실 갤러리·전시로 채우기 (CMS 사용) | ⏳ |
 | D. 즐겨찾기 + Auth | Supabase Auth + 사용자별 saved exhibitions | ⏳ |
 | E. 알림 | 시작/종료 임박 이메일 | ⏳ |
@@ -147,13 +147,13 @@ v1.0 MVP 완성 후 시작. JSON seed → Supabase Postgres로 전환하고, 그
 
 ### Phase B 체크리스트
 
-- [ ] B-1: 사용자 — Supabase 가입 (GitHub 로그인) + `galleryuk` 프로젝트 생성 (London region)
-- [ ] B-2: Claude — `galleries`, `exhibitions` 테이블 스키마 SQL 생성 → 사용자가 SQL Editor에 붙여넣기
-- [ ] B-3: Claude — 현재 `public/data/*.json` → SQL INSERT 생성 → 사용자 실행
-- [ ] B-4: 사용자 — Settings → API에서 URL + anon key 복사해서 Vercel env 등록 (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
-- [ ] B-5: Claude — `@supabase/supabase-js` 추가, `lib/data.ts` Supabase 쿼리로 교체 (인터페이스 동일 유지), 단위 테스트 그린 유지
-- [ ] B-6: 사용자 — PR merge → Vercel 재배포 → 모든 페이지 동작 확인 (홈/전시/갤러리/검색/지도)
-- [ ] **Gate B**: Blocker 0, 모든 페이지 정상, Lighthouse Mobile Perf ≥ 90 유지
+- [x] B-1: 사용자 — Supabase 가입 (GitHub 로그인) + `galleryuk` 프로젝트 생성 (London region)
+- [x] B-2: Claude — `galleries`, `exhibitions` 테이블 스키마 SQL 생성 → 사용자가 SQL Editor에 붙여넣기 (`supabase/schema.sql`)
+- [x] B-3: Claude — 현재 `public/data/*.json` → SQL INSERT 생성 → 사용자 실행 (`scripts/build-seed-sql.mjs` → `supabase/seed.sql`, 10 갤러리 / 16 전시)
+- [x] B-4: 사용자 — Settings → API에서 URL + anon key 복사해서 Vercel env 등록 (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`) — URL 끝의 `/rest/v1/` 슬래시 제거 트러블슈팅 1회
+- [x] B-5: Claude — `@supabase/supabase-js` 추가, `lib/data.ts` Supabase 쿼리로 교체 (인터페이스 동일 유지), `lib/supabase.ts` lazy 싱글톤, 단위 테스트 47/47 그린 유지
+- [x] B-6: 사용자 — PR merge → Vercel 재배포 → 모든 페이지 동작 확인 (홈/전시/갤러리/검색/지도)
+- [x] **Gate B**: Blocker 0, 모든 페이지 정상, **Lighthouse Mobile Perf 98** (목표 ≥ 90 충족)
 
 ### Phase B 설계 결정
 
@@ -171,6 +171,44 @@ v1.0 MVP 완성 후 시작. JSON seed → Supabase Postgres로 전환하고, 그
 | "Vercel에 키 등록했어" | B-5 (코드 마이그레이션) 진행 |
 | "재배포 끝났어 / 사이트 잘 떠" | Gate B 검증 후 다음 sub-phase 안내 |
 | "에러 떴어: <로그>" | 단계별 트러블슈팅 |
+
+---
+
+## v1.1 Phase C — 어드민 CMS (시작 2026-05-03)
+
+`/admin` 라우트 아래에 본인 전용 CMS. magic link 로그인 → 갤러리/전시 CRUD.
+
+### Phase C 체크리스트
+
+- [x] C-1: 사용자 — Supabase Authentication > Email provider ON, Users 탭에서 본인 계정 수동 추가
+- [x] C-2: 사용자 — Vercel env에 `ADMIN_EMAIL`, `SUPABASE_SERVICE_ROLE_KEY` 등록 (둘 다 NEXT_PUBLIC 접두사 X)
+- [x] C-3: Claude — Supabase 클라이언트 3종 (`lib/supabase-server.ts`, `lib/supabase-admin.ts`, `lib/supabase-browser.ts`)
+- [x] C-4: Claude — `/admin/login` 페이지 (`LoginForm.tsx`) + `sendMagicLink` Server Action (`actions.ts`)
+- [x] C-5: Claude — `/admin/auth/callback/route.ts` 코드 교환 + 세션 쿠키
+- [x] C-6: Claude — `app/admin/(authed)/layout.tsx` auth gate (ADMIN_EMAIL 매칭 검증, 실패 시 `/admin/login` 리다이렉트)
+- [x] C-7: Claude — `/admin` 대시보드 (galleries/exhibitions count) + `/admin/logout` POST 라우트, stub 페이지 `/admin/galleries`, `/admin/exhibitions`
+- [ ] C-8: Claude — `/admin/galleries` CRUD (list / create / edit / delete)
+- [ ] C-9: Claude — `/admin/exhibitions` CRUD
+- [ ] C-10: Claude — 단위/통합 테스트 보강
+- [ ] C-11: 사용자 — PR merge + Supabase URL Configuration의 Redirect URLs에 `https://galleryuk.vercel.app/admin/auth/callback` 추가 + 로그인 + 대시보드 진입 테스트
+- [ ] **Gate C**: Blocker 0, magic link 로그인 동작, 갤러리·전시 CRUD 다 작동
+
+### Phase C 설계 결정
+
+- **Service-role 키는 서버 전용** — `lib/supabase-admin.ts` 는 `'server-only'` 마킹, 환경변수 이름도 `NEXT_PUBLIC_` 접두사 없음
+- **모든 쓰기는 Server Actions** — 클라이언트엔 service role 절대 노출 금지
+- **`/admin/(authed)` route group** — URL 영향 없이 layout만 공유. login/callback 페이지는 그룹 밖 (인증 게이트 통과 안 해도 됨)
+- **Magic link 발송 노출 최소화** — 누가 요청해도 200 OK; 실제 발송은 admin 이메일 일치 시에만 (timing attack 회피)
+- **`shouldCreateUser: false`** — magic link로는 새 사용자 못 만듦. 본인 계정은 Supabase Users 탭에서 수동 생성
+
+### 다음 세션 재진입 가이드 (Phase C 후속)
+
+| 사용자 메시지 형태 | 대응 |
+|---|---|
+| "C 환경변수 다 등록했어" | C-3~C-7 코드 작성 (이번 세션에 완료) |
+| "merge 했고 로그인 됐어" | C-8 (galleries CRUD) 시작 |
+| "redirect URL 못 받아 / 매직 링크 안 와" | Supabase URL Configuration + 메일 폴더(스팸함) 확인 안내 |
+| "C-8부터 시작해줘" | galleries CRUD 폼 작성 시작 |
 
 ---
 
