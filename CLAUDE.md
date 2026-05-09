@@ -138,8 +138,8 @@ v1.0 MVP 완성 후 시작. JSON seed → Supabase Postgres로 전환하고, 그
 | Sub-phase | 목표 | 상태 |
 |---|---|---|
 | **B**. Supabase 마이그레이션 | JSON → Postgres, `lib/data.ts` 인터페이스 유지, 페이지 그대로 동작 | ✅ 완료 (2026-05-03, Lighthouse Mobile Perf 98) |
-| C. 어드민 CMS | 브라우저에서 갤러리/전시 CRUD | 🔄 다음 |
-| A'. 데이터 리프레시 | V&A East Storehouse 등 실 갤러리·전시로 채우기 (CMS 사용) | ⏳ |
+| C. 어드민 CMS | 브라우저에서 갤러리/전시 CRUD | ✅ 완료 (2026-05-03, magic link login + CRUD 다 검증) |
+| A'. 데이터 리프레시 | V&A East Storehouse 등 실 갤러리·전시로 채우기 (CMS 사용) | 🔄 다음 |
 | D. 즐겨찾기 + Auth | Supabase Auth + 사용자별 saved exhibitions | ⏳ |
 | E. 알림 | 시작/종료 임박 이메일 | ⏳ |
 
@@ -188,10 +188,10 @@ v1.0 MVP 완성 후 시작. JSON seed → Supabase Postgres로 전환하고, 그
 - [x] C-6: Claude — `app/admin/(authed)/layout.tsx` auth gate (ADMIN_EMAIL 매칭 검증, 실패 시 `/admin/login` 리다이렉트)
 - [x] C-7: Claude — `/admin` 대시보드 (galleries/exhibitions count) + `/admin/logout` POST 라우트, stub 페이지 `/admin/galleries`, `/admin/exhibitions`
 - [x] C-8: Claude — `/admin/galleries` CRUD (list/create/edit/delete) + 사용자 검증 완료 (V&A East Storehouse 추가/수정/삭제 + revalidatePath 동작)
-- [ ] C-9: Claude — `/admin/exhibitions` CRUD
-- [ ] C-10: Claude — 단위/통합 테스트 보강
-- [ ] C-11: 사용자 — PR merge + Supabase URL Configuration의 Redirect URLs에 `https://galleryuk.vercel.app/admin/auth/callback` 추가 + 로그인 + 대시보드 진입 테스트
-- [ ] **Gate C**: Blocker 0, magic link 로그인 동작, 갤러리·전시 CRUD 다 작동
+- [x] C-9: Claude — `/admin/exhibitions` CRUD (list/create/edit/delete + status badge + gallery 드롭다운 + 사용자 검증 완료)
+- [ ] C-10: Claude — 단위/통합 테스트 보강 (선택, A'로 미룰 수 있음)
+- [x] C-11: 사용자 — Supabase Redirect URL 등록 + 로그인 + 대시보드 진입 + CRUD 검증 완료
+- [x] **Gate C**: Blocker 0, magic link 로그인 동작, 갤러리·전시 CRUD 다 작동 (PASS, 2026-05-03)
 
 ### Phase C 설계 결정
 
