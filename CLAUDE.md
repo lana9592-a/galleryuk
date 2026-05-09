@@ -247,11 +247,11 @@ For each gallery WHERE whats_on_url IS NOT NULL:
 
 ### v1.2.1 체크리스트
 
-- [ ] 사용자 — Anthropic Console 가입 (https://console.anthropic.com), API 키 발급, $5 무료 크레딧 확인
-- [ ] 사용자 — Vercel env에 `ANTHROPIC_API_KEY`, `CRON_SECRET` (랜덤 문자열) 등록 (둘 다 NEXT_PUBLIC 접두사 X)
-- [ ] Claude — 스키마 마이그레이션 SQL 작성: `galleries.whats_on_url`, `exhibitions.{source_url, last_scraped_at, verified}`, 새 테이블 `scrape_log`
-- [ ] 사용자 — Supabase SQL Editor에서 마이그레이션 실행
-- [ ] 사용자 — CMS에서 각 갤러리에 `whats_on_url` 채우기 (예: tate-modern → https://www.tate.org.uk/whats-on/tate-modern). 처음엔 1~2개만, PoC 통과 후 전체
+- [x] 사용자 — Anthropic Console 가입 (https://console.anthropic.com), API 키 발급, $5 무료 크레딧 확인
+- [x] 사용자 — Vercel env에 `ANTHROPIC_API_KEY`, `CRON_SECRET` (랜덤 UUID v4) 등록 (둘 다 NEXT_PUBLIC 접두사 X, Production + Preview)
+- [x] Claude — 스키마 마이그레이션 SQL 작성 (`supabase/migrations/v1.2.1-scrape-infrastructure.sql`)
+- [x] 사용자 — Supabase SQL Editor에서 마이그레이션 실행 (galleries.whats_on_url, exhibitions.{source_url, last_scraped_at, verified}, 새 테이블 scrape_log + RLS lockdown)
+- [ ] 사용자 — CMS에서 각 갤러리에 `whats_on_url` 채우기 (다음 세션 PoC 시작 전 1~2개만)
 
 ### v1.2 설계 결정
 
