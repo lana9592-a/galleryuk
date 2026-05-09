@@ -187,7 +187,7 @@ v1.0 MVP 완성 후 시작. JSON seed → Supabase Postgres로 전환하고, 그
 - [x] C-5: Claude — `/admin/auth/callback/route.ts` 코드 교환 + 세션 쿠키
 - [x] C-6: Claude — `app/admin/(authed)/layout.tsx` auth gate (ADMIN_EMAIL 매칭 검증, 실패 시 `/admin/login` 리다이렉트)
 - [x] C-7: Claude — `/admin` 대시보드 (galleries/exhibitions count) + `/admin/logout` POST 라우트, stub 페이지 `/admin/galleries`, `/admin/exhibitions`
-- [ ] C-8: Claude — `/admin/galleries` CRUD (list / create / edit / delete)
+- [x] C-8: Claude — `/admin/galleries` CRUD (list/create/edit/delete) + 사용자 검증 완료 (V&A East Storehouse 추가/수정/삭제 + revalidatePath 동작)
 - [ ] C-9: Claude — `/admin/exhibitions` CRUD
 - [ ] C-10: Claude — 단위/통합 테스트 보강
 - [ ] C-11: 사용자 — PR merge + Supabase URL Configuration의 Redirect URLs에 `https://galleryuk.vercel.app/admin/auth/callback` 추가 + 로그인 + 대시보드 진입 테스트
