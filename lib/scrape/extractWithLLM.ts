@@ -1,5 +1,4 @@
 import 'server-only';
-import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { getAnthropic, SCRAPER_MODEL } from './anthropic';
 import { ScrapedResponseSchema, type ScrapedExhibition } from './types';
 
@@ -23,6 +22,60 @@ Rules:
 
 Output the JSON object that the schema demands. No prose, no commentary.`;
 
+// Hand-written JSON Schema. Mirrors ScrapedResponseSchema in types.ts but
+// avoids the @anthropic-ai/sdk zod helper, which currently expects Zod v4
+// internals (a `.def` accessor) — our project uses Zod v3 (`._def`), so
+// using the helper raises "Cannot read properties of undefined (reading 'def')".
+const RESPONSE_JSON_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['exhibitions'],
+  properties: {
+    exhibitions: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: [
+          'title',
+          'summary',
+          'description',
+          'startDate',
+          'endDate',
+          'category',
+          'priceFrom',
+          'priceTo',
+          'ticketUrl',
+          'heroImage',
+          'heroImageAlt',
+          'artists',
+          'curator',
+          'tags',
+        ],
+        properties: {
+          title: { type: 'string' },
+          summary: { type: 'string' },
+          description: { type: 'string' },
+          startDate: { type: 'string' },
+          endDate: { type: 'string' },
+          category: {
+            type: 'string',
+            enum: ['painting', 'photography', 'sculpture', 'installation', 'mixed'],
+          },
+          priceFrom: { type: ['number', 'null'] },
+          priceTo: { type: ['number', 'null'] },
+          ticketUrl: { type: ['string', 'null'] },
+          heroImage: { type: 'string' },
+          heroImageAlt: { type: 'string' },
+          artists: { type: 'array', items: { type: 'string' } },
+          curator: { type: ['string', 'null'] },
+          tags: { type: 'array', items: { type: 'string' } },
+        },
+      },
+    },
+  },
+} as const;
+
 export type ExtractResult = {
   exhibitions: ScrapedExhibition[];
   inputTokens: number;
@@ -35,7 +88,7 @@ export async function extractExhibitionsWithLLM(
 ): Promise<ExtractResult> {
   const anthropic = getAnthropic();
 
-  const response = await anthropic.messages.parse({
+  const response = await anthropic.messages.create({
     model: SCRAPER_MODEL,
     max_tokens: 8192,
     system: SYSTEM_PROMPT,
@@ -45,16 +98,43 @@ export async function extractExhibitionsWithLLM(
         content: `Page URL: ${pageUrl}\n\nHTML:\n\n${html.slice(0, 240_000)}`,
       },
     ],
-    output_config: { format: zodOutputFormat(ScrapedResponseSchema) },
+    output_config: {
+      format: {
+        type: 'json_schema',
+        schema: RESPONSE_JSON_SCHEMA as unknown as Record<string, unknown>,
+      },
+    },
   });
 
-  const parsed = response.parsed_output;
-  if (!parsed) {
-    throw new Error('LLM returned a response that did not match the schema.');
+  const textBlock = response.content.find(
+    (b): b is Extract<typeof b, { type: 'text' }> => b.type === 'text',
+  );
+  if (!textBlock) {
+    throw new Error('LLM returned no text content.');
+  }
+
+  let parsedJson: unknown;
+  try {
+    parsedJson = JSON.parse(textBlock.text);
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : String(err);
+    throw new Error(
+      `LLM response was not valid JSON: ${reason}. First 200 chars: ${textBlock.text.slice(0, 200)}`,
+    );
+  }
+
+  const result = ScrapedResponseSchema.safeParse(parsedJson);
+  if (!result.success) {
+    throw new Error(
+      `LLM response did not match schema: ${result.error.issues
+        .slice(0, 3)
+        .map((i) => `${i.path.join('.')}: ${i.message}`)
+        .join('; ')}`,
+    );
   }
 
   return {
-    exhibitions: parsed.exhibitions,
+    exhibitions: result.data.exhibitions,
     inputTokens: response.usage.input_tokens,
     outputTokens: response.usage.output_tokens,
   };
