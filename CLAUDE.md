@@ -212,6 +212,68 @@ v1.0 MVP 완성 후 시작. JSON seed → Supabase Postgres로 전환하고, 그
 
 ---
 
+## v1.2 — 데이터 자동화 (시작 2026-05-03)
+
+CMS 위에 LLM-powered 스크래퍼를 얹어서 갤러리 사이트의 "What's on" 페이지를 매일 자동으로 끌어와 Supabase에 upsert. v1.1 A' (수동 데이터 리프레시)는 v1.2가 흡수해서 사라짐.
+
+### 결정 배경
+
+사용자 우려: "어드민 CMS 만들고 또 손으로 데이터 입력하는 건 자동화 정신에 위배". 동의 → A' 스킵, 자동화 dedicated phase로 격상. v1.1 D/E보다 자동화 먼저 (D/E를 진짜 데이터 위에서 빌드하는 게 디자인 결정 더 정확).
+
+### 아키텍처
+
+```
+Vercel Cron (daily 02:00 UTC)
+    ↓ POST /api/cron/scrape (CRON_SECRET 인증)
+    ↓
+For each gallery WHERE whats_on_url IS NOT NULL:
+    fetch(whats_on_url) → HTML
+    Anthropic Claude Haiku 4.5 → JSON 추출
+    parse + Zod 검증
+    upsert into exhibitions WHERE NOT verified
+    log to scrape_log
+```
+
+### Sub-step 로드맵
+
+| # | 단계 | 시간 | 산출물 |
+|---|---|---|---|
+| **v1.2.1** | 인프라 — 스키마 추가, Anthropic API 키 등록 | 1 세션 | 스키마 마이그레이션 SQL, env 셋업 |
+| v1.2.2 | 1개 갤러리 PoC (Tate Modern) — 스크랩 + 추출 + DB 저장 | 1~2 세션 | `app/api/cron/scrape-one/route.ts`, 프롬프트 튜닝 |
+| v1.2.3 | 모든 갤러리로 확장 + 에러 처리 | 1~2 세션 | 일괄 처리 루프, 갤러리별 whats_on_url |
+| v1.2.4 | Vercel Cron 연결 + 어드민 로그 페이지 | 1 세션 | `vercel.json`, `/admin/scrape-log` |
+| v1.2.5 | 중복 감지 + verified 보호 + 알림 | 1~2 세션 | upsert 로직, admin verified 토글 |
+| **Gate v1.2** | 7일 연속 cron 성공, verified 보호 검증, 운영비 < $5/월 |
+
+### v1.2.1 체크리스트
+
+- [ ] 사용자 — Anthropic Console 가입 (https://console.anthropic.com), API 키 발급, $5 무료 크레딧 확인
+- [ ] 사용자 — Vercel env에 `ANTHROPIC_API_KEY`, `CRON_SECRET` (랜덤 문자열) 등록 (둘 다 NEXT_PUBLIC 접두사 X)
+- [ ] Claude — 스키마 마이그레이션 SQL 작성: `galleries.whats_on_url`, `exhibitions.{source_url, last_scraped_at, verified}`, 새 테이블 `scrape_log`
+- [ ] 사용자 — Supabase SQL Editor에서 마이그레이션 실행
+- [ ] 사용자 — CMS에서 각 갤러리에 `whats_on_url` 채우기 (예: tate-modern → https://www.tate.org.uk/whats-on/tate-modern). 처음엔 1~2개만, PoC 통과 후 전체
+
+### v1.2 설계 결정
+
+- **Anthropic Claude Haiku 4.5** — 가성비 최고. 입력 $1/MTok, 출력 $5/MTok. 페이지당 ~$0.005, 월 운영비 ~$1.5
+- **Server-only API key** — `ANTHROPIC_API_KEY` (NEXT_PUBLIC_ 없음), 서버 라우트에서만 사용
+- **Vercel Cron** — Hobby 플랜에 daily 1회 무료. `vercel.json`에 schedule 정의
+- **`verified` 플래그** — admin이 CMS로 수정한 row는 verified=true, scraper 무시. 자동/수동 데이터 충돌 방지
+- **`source_url` 추적** — 어느 페이지에서 왔는지 기록, 나중에 출처 표시 / 재검증 시 활용
+- **Zod 검증 유지** — LLM이 헛소리해도 ExhibitionSchema에 안 맞으면 reject
+- **Rate limit 보호** — cron 호출에 `CRON_SECRET` 헤더 검증 (외부 트리거 방지)
+
+### 다음 세션 재진입 가이드 (v1.2 후속)
+
+| 사용자 메시지 형태 | 대응 |
+|---|---|
+| "Anthropic API 키 받았어" | 스키마 마이그레이션 SQL 생성 안내 |
+| "스키마 마이그레이션 끝났어" | v1.2.2 (PoC 스크래퍼) 시작 |
+| "Cron 연결됐어" | v1.2.5 (verified 보호 + 알림) 시작 |
+| "스크래퍼 에러: <로그>" | LLM 응답 / Zod / API 키 단계별 디버깅 |
+
+---
+
 ## 4. 기술 스택 (확정)
 
 | 레이어 | 선택 | 이유 |
