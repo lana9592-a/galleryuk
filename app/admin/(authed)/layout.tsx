@@ -43,6 +43,12 @@ export default async function AuthedAdminLayout({
             >
               Exhibitions
             </Link>
+            <Link
+              href="/admin/scrape"
+              className="text-text-muted hover:text-text"
+            >
+              Scrape
+            </Link>
             <span className="hidden text-text-muted md:inline">·</span>
             <span className="hidden text-xs text-text-muted md:inline">
               {user.email}
