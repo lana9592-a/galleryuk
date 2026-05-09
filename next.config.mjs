@@ -4,18 +4,14 @@ const nextConfig = {
     typedRoutes: true,
   },
   images: {
+    // Permissive HTTPS allowlist. The LLM scraper extracts hero image URLs
+    // from arbitrary gallery CDNs (prod-images.tate.org.uk,
+    // media.vam.ac.uk, royalacademy.gallery, etc.) — predeclaring every
+    // host is impractical. Next.js still optimises every image through
+    // its own pipeline, so the runtime risk surface is the optimiser
+    // itself, not arbitrary remote bytes.
     remotePatterns: [
-      { protocol: 'https', hostname: 'images.unsplash.com' },
-      { protocol: 'https', hostname: 'picsum.photos' },
-      { protocol: 'https', hostname: 'www.tate.org.uk' },
-      { protocol: 'https', hostname: 'www.nationalgallery.org.uk' },
-      { protocol: 'https', hostname: 'www.vam.ac.uk' },
-      { protocol: 'https', hostname: 'www.royalacademy.org.uk' },
-      { protocol: 'https', hostname: 'www.serpentinegalleries.org' },
-      { protocol: 'https', hostname: 'www.southbankcentre.co.uk' },
-      { protocol: 'https', hostname: 'www.whitechapelgallery.org' },
-      { protocol: 'https', hostname: 'courtauld.ac.uk' },
-      { protocol: 'https', hostname: 'saatchigallery.com' },
+      { protocol: 'https', hostname: '**' },
     ],
   },
 };
