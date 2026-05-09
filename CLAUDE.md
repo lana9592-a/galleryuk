@@ -138,8 +138,8 @@ v1.0 MVP 완성 후 시작. JSON seed → Supabase Postgres로 전환하고, 그
 | Sub-phase | 목표 | 상태 |
 |---|---|---|
 | **B**. Supabase 마이그레이션 | JSON → Postgres, `lib/data.ts` 인터페이스 유지, 페이지 그대로 동작 | ✅ 완료 (2026-05-03, Lighthouse Mobile Perf 98) |
-| C. 어드민 CMS | 브라우저에서 갤러리/전시 CRUD | 🔄 다음 |
-| A'. 데이터 리프레시 | V&A East Storehouse 등 실 갤러리·전시로 채우기 (CMS 사용) | ⏳ |
+| C. 어드민 CMS | 브라우저에서 갤러리/전시 CRUD | ✅ 완료 (2026-05-03, magic link login + CRUD 다 검증) |
+| A'. 데이터 리프레시 | V&A East Storehouse 등 실 갤러리·전시로 채우기 (CMS 사용) | 🔄 다음 |
 | D. 즐겨찾기 + Auth | Supabase Auth + 사용자별 saved exhibitions | ⏳ |
 | E. 알림 | 시작/종료 임박 이메일 | ⏳ |
 
@@ -188,10 +188,10 @@ v1.0 MVP 완성 후 시작. JSON seed → Supabase Postgres로 전환하고, 그
 - [x] C-6: Claude — `app/admin/(authed)/layout.tsx` auth gate (ADMIN_EMAIL 매칭 검증, 실패 시 `/admin/login` 리다이렉트)
 - [x] C-7: Claude — `/admin` 대시보드 (galleries/exhibitions count) + `/admin/logout` POST 라우트, stub 페이지 `/admin/galleries`, `/admin/exhibitions`
 - [x] C-8: Claude — `/admin/galleries` CRUD (list/create/edit/delete) + 사용자 검증 완료 (V&A East Storehouse 추가/수정/삭제 + revalidatePath 동작)
-- [ ] C-9: Claude — `/admin/exhibitions` CRUD
-- [ ] C-10: Claude — 단위/통합 테스트 보강
-- [ ] C-11: 사용자 — PR merge + Supabase URL Configuration의 Redirect URLs에 `https://galleryuk.vercel.app/admin/auth/callback` 추가 + 로그인 + 대시보드 진입 테스트
-- [ ] **Gate C**: Blocker 0, magic link 로그인 동작, 갤러리·전시 CRUD 다 작동
+- [x] C-9: Claude — `/admin/exhibitions` CRUD (list/create/edit/delete + status badge + gallery 드롭다운 + 사용자 검증 완료)
+- [ ] C-10: Claude — 단위/통합 테스트 보강 (선택, A'로 미룰 수 있음)
+- [x] C-11: 사용자 — Supabase Redirect URL 등록 + 로그인 + 대시보드 진입 + CRUD 검증 완료
+- [x] **Gate C**: Blocker 0, magic link 로그인 동작, 갤러리·전시 CRUD 다 작동 (PASS, 2026-05-03)
 
 ### Phase C 설계 결정
 
@@ -209,6 +209,68 @@ v1.0 MVP 완성 후 시작. JSON seed → Supabase Postgres로 전환하고, 그
 | "merge 했고 로그인 됐어" | C-8 (galleries CRUD) 시작 |
 | "redirect URL 못 받아 / 매직 링크 안 와" | Supabase URL Configuration + 메일 폴더(스팸함) 확인 안내 |
 | "C-8부터 시작해줘" | galleries CRUD 폼 작성 시작 |
+
+---
+
+## v1.2 — 데이터 자동화 (시작 2026-05-03)
+
+CMS 위에 LLM-powered 스크래퍼를 얹어서 갤러리 사이트의 "What's on" 페이지를 매일 자동으로 끌어와 Supabase에 upsert. v1.1 A' (수동 데이터 리프레시)는 v1.2가 흡수해서 사라짐.
+
+### 결정 배경
+
+사용자 우려: "어드민 CMS 만들고 또 손으로 데이터 입력하는 건 자동화 정신에 위배". 동의 → A' 스킵, 자동화 dedicated phase로 격상. v1.1 D/E보다 자동화 먼저 (D/E를 진짜 데이터 위에서 빌드하는 게 디자인 결정 더 정확).
+
+### 아키텍처
+
+```
+Vercel Cron (daily 02:00 UTC)
+    ↓ POST /api/cron/scrape (CRON_SECRET 인증)
+    ↓
+For each gallery WHERE whats_on_url IS NOT NULL:
+    fetch(whats_on_url) → HTML
+    Anthropic Claude Haiku 4.5 → JSON 추출
+    parse + Zod 검증
+    upsert into exhibitions WHERE NOT verified
+    log to scrape_log
+```
+
+### Sub-step 로드맵
+
+| # | 단계 | 시간 | 산출물 |
+|---|---|---|---|
+| **v1.2.1** | 인프라 — 스키마 추가, Anthropic API 키 등록 | 1 세션 | 스키마 마이그레이션 SQL, env 셋업 |
+| v1.2.2 | 1개 갤러리 PoC (Tate Modern) — 스크랩 + 추출 + DB 저장 | 1~2 세션 | `app/api/cron/scrape-one/route.ts`, 프롬프트 튜닝 |
+| v1.2.3 | 모든 갤러리로 확장 + 에러 처리 | 1~2 세션 | 일괄 처리 루프, 갤러리별 whats_on_url |
+| v1.2.4 | Vercel Cron 연결 + 어드민 로그 페이지 | 1 세션 | `vercel.json`, `/admin/scrape-log` |
+| v1.2.5 | 중복 감지 + verified 보호 + 알림 | 1~2 세션 | upsert 로직, admin verified 토글 |
+| **Gate v1.2** | 7일 연속 cron 성공, verified 보호 검증, 운영비 < $5/월 |
+
+### v1.2.1 체크리스트
+
+- [x] 사용자 — Anthropic Console 가입 (https://console.anthropic.com), API 키 발급, $5 무료 크레딧 확인
+- [x] 사용자 — Vercel env에 `ANTHROPIC_API_KEY`, `CRON_SECRET` (랜덤 UUID v4) 등록 (둘 다 NEXT_PUBLIC 접두사 X, Production + Preview)
+- [x] Claude — 스키마 마이그레이션 SQL 작성 (`supabase/migrations/v1.2.1-scrape-infrastructure.sql`)
+- [x] 사용자 — Supabase SQL Editor에서 마이그레이션 실행 (galleries.whats_on_url, exhibitions.{source_url, last_scraped_at, verified}, 새 테이블 scrape_log + RLS lockdown)
+- [ ] 사용자 — CMS에서 각 갤러리에 `whats_on_url` 채우기 (다음 세션 PoC 시작 전 1~2개만)
+
+### v1.2 설계 결정
+
+- **Anthropic Claude Haiku 4.5** — 가성비 최고. 입력 $1/MTok, 출력 $5/MTok. 페이지당 ~$0.005, 월 운영비 ~$1.5
+- **Server-only API key** — `ANTHROPIC_API_KEY` (NEXT_PUBLIC_ 없음), 서버 라우트에서만 사용
+- **Vercel Cron** — Hobby 플랜에 daily 1회 무료. `vercel.json`에 schedule 정의
+- **`verified` 플래그** — admin이 CMS로 수정한 row는 verified=true, scraper 무시. 자동/수동 데이터 충돌 방지
+- **`source_url` 추적** — 어느 페이지에서 왔는지 기록, 나중에 출처 표시 / 재검증 시 활용
+- **Zod 검증 유지** — LLM이 헛소리해도 ExhibitionSchema에 안 맞으면 reject
+- **Rate limit 보호** — cron 호출에 `CRON_SECRET` 헤더 검증 (외부 트리거 방지)
+
+### 다음 세션 재진입 가이드 (v1.2 후속)
+
+| 사용자 메시지 형태 | 대응 |
+|---|---|
+| "Anthropic API 키 받았어" | 스키마 마이그레이션 SQL 생성 안내 |
+| "스키마 마이그레이션 끝났어" | v1.2.2 (PoC 스크래퍼) 시작 |
+| "Cron 연결됐어" | v1.2.5 (verified 보호 + 알림) 시작 |
+| "스크래퍼 에러: <로그>" | LLM 응답 / Zod / API 키 단계별 디버깅 |
 
 ---
 
