@@ -238,11 +238,11 @@ For each gallery WHERE whats_on_url IS NOT NULL:
 
 | # | 단계 | 시간 | 산출물 |
 |---|---|---|---|
-| **v1.2.1** | 인프라 — 스키마 추가, Anthropic API 키 등록 | 1 세션 | 스키마 마이그레이션 SQL, env 셋업 |
-| v1.2.2 | 1개 갤러리 PoC (Tate Modern) — 스크랩 + 추출 + DB 저장 | 1~2 세션 | `app/api/cron/scrape-one/route.ts`, 프롬프트 튜닝 |
-| v1.2.3 | 모든 갤러리로 확장 + 에러 처리 | 1~2 세션 | 일괄 처리 루프, 갤러리별 whats_on_url |
-| v1.2.4 | Vercel Cron 연결 + 어드민 로그 페이지 | 1 세션 | `vercel.json`, `/admin/scrape-log` |
-| v1.2.5 | 중복 감지 + verified 보호 + 알림 | 1~2 세션 | upsert 로직, admin verified 토글 |
+| **v1.2.1** | ✅ 인프라 — 스키마 추가, Anthropic API 키 등록 (2026-05-03) | 1 세션 | 스키마 마이그레이션 SQL, env 셋업 |
+| **v1.2.2** | ✅ 1개 갤러리 PoC + admin /scrape UI (2026-05-03, Tate Modern 15 exhibitions 추출) | 2 세션 | `lib/scrape/*`, `/api/cron/scrape-one`, `/admin/scrape` |
+| v1.2.3 | 모든 갤러리로 확장 + 에러 처리 | 1~2 세션 | CMS whats_on_url 필드, 일괄 처리, 갤러리별 URL |
+| v1.2.4 | Vercel Cron 연결 + 어드민 로그 페이지 강화 | 1 세션 | `vercel.json`, scrape_log 필터링/페이지네이션 |
+| v1.2.5 | 중복 감지 + verified 보호 + 알림 | 1~2 세션 | upsert 로직 강화, admin verified 토글 UI |
 | **Gate v1.2** | 7일 연속 cron 성공, verified 보호 검증, 운영비 < $5/월 |
 
 ### v1.2.1 체크리스트
