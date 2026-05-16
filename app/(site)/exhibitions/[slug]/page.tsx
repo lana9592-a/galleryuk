@@ -110,22 +110,30 @@ export default async function ExhibitionDetailPage({
             </div>
           </dl>
 
-          {exhibition.ticketUrl ? (
-            <a
-              href={exhibition.ticketUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-semibold text-white transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-            >
-              Book tickets
-              <ExternalLink className="h-4 w-4" aria-hidden />
-              <span className="sr-only">(opens in new tab)</span>
-            </a>
-          ) : (
-            <span className="inline-flex h-12 items-center justify-center rounded-md border border-border bg-surface px-6 text-sm font-medium text-text-muted">
-              Free entry
-            </span>
-          )}
+          {(() => {
+            const hasPrice =
+              exhibition.priceFrom != null && exhibition.priceFrom > 0;
+            const ctaLabel = hasPrice ? 'Book tickets' : 'View exhibition';
+            if (exhibition.ticketUrl) {
+              return (
+                <a
+                  href={exhibition.ticketUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-semibold text-white transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                >
+                  {ctaLabel}
+                  <ExternalLink className="h-4 w-4" aria-hidden />
+                  <span className="sr-only">(opens in new tab)</span>
+                </a>
+              );
+            }
+            return (
+              <span className="inline-flex h-12 items-center justify-center rounded-md border border-border bg-surface px-6 text-sm font-medium text-text-muted">
+                {hasPrice ? 'Tickets via venue' : 'Free entry'}
+              </span>
+            );
+          })()}
         </section>
 
         <section aria-labelledby="about-heading" className="max-w-prose space-y-4">
