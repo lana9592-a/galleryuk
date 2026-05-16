@@ -263,6 +263,29 @@ For each gallery WHERE whats_on_url IS NOT NULL:
 - **Zod 검증 유지** — LLM이 헛소리해도 ExhibitionSchema에 안 맞으면 reject
 - **Rate limit 보호** — cron 호출에 `CRON_SECRET` 헤더 검증 (외부 트리거 방지)
 
+### v1.2.2 Post-mortem — 다음 작업에서 피해야 할 실수 6개
+
+1. **외부 SDK 헬퍼 쓰기 전 의존성 버전 호환성 확인.** `@anthropic-ai/sdk`의 `zodOutputFormat`가 Zod 4의 `.def` 접근자를 썼는데 우리는 Zod 3 (`._def`). 헬퍼가 런타임에 터짐. → 라이브러리 helper 도입 시 우리 의존성 버전 명시 + 실패 시 raw JSON Schema로 우회.
+2. **LLM이 뽑는 외부 URL은 출처 도메인이 다양하다.** 갤러리 메인 도메인뿐 아니라 CDN 서브도메인(`prod-images.tate.org.uk` 등)에서 자산이 나옴. `next.config.mjs`의 `images.remotePatterns`을 좁게 잡으면 즉시 깨짐. → 자동 추출 콘텐츠는 `hostname: '**'` 권장.
+3. **프롬프트의 모호함 = 데이터 품질 손실.** "ticketUrl is the booking page URL" 같은 일반론은 LLM이 갤러리 메인 페이지나 일반 결제 링크를 잡아옴. → per-record vs per-page, 절대 URL vs 상대 URL을 명시 + post-processing(`new URL(value, base)`)으로 이중 방어.
+4. **SSG는 per-instance 캐시다.** `revalidatePath('/exhibitions')`은 리스트만 무효화. `/exhibitions/[slug]`은 슬러그마다 별도 캐시 키. → DB write 후 touched ID마다 `revalidatePath('/exhibitions/{id}')` 호출. 빠뜨리면 사용자는 stale 페이지를 봄.
+5. **시드 데이터 + 스크랩 데이터 공존 정책 필요.** 동일 갤러리에 시드와 스크랩이 다른 슬러그로 같이 살면 사용자는 둘 다 봄. → (a) 시드 row를 `verified=true`로 마킹해 보호하거나, (b) 스크래퍼가 verified=false 중 "이번 run에 못 본 row"를 자동 정리.
+6. **무료 전시도 외부 사이트로 가는 CTA가 필요하다.** `ticketUrl ? button : 'Free entry' 정적`은 무료 전시 사용자를 막다른 길로 보냄. → 가격과 무관하게 URL 있으면 버튼 (라벨만 "View exhibition" 등으로 바꾸기).
+
+### 스크래퍼/데이터 파이프라인 체크리스트 (v1.2.3+ 적용)
+
+새 스크래핑 코드 또는 데이터 변경하는 admin action 만들 때 마지막에 한 번씩 훑기:
+
+- [ ] 프롬프트가 per-record(전시별) vs per-page(갤러리 전체) 구분을 명시했나
+- [ ] LLM 응답의 URL을 `new URL(value, pageUrl)`로 절대 URL 정규화하나
+- [ ] `next.config.mjs` `images.remotePatterns`이 새 데이터 출처 도메인을 허용하나
+- [ ] DB write 후 SSG-backed 페이지마다 `revalidatePath` 호출 (리스트 + 디테일 둘 다)
+- [ ] 시드 row와 새 row의 lifecycle 정책 명시 (verified 보호 + stale 자동 정리 OR 수동 정리)
+- [ ] UI에서 가격 / URL 둘 다 없거나, URL만 있거나, 가격만 있는 모든 조합을 처리
+- [ ] 외부 SDK helper 도입 시 Zod / 다른 의존성 버전 호환성 확인
+- [ ] 로컬 빌드(`pnpm build`)가 stub env로 'Compiled successfully'까지 가나
+- [ ] 단위 테스트(`pnpm test`) 그린 유지
+
 ### 다음 세션 재진입 가이드 (v1.2 후속)
 
 | 사용자 메시지 형태 | 대응 |

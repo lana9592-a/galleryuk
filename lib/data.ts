@@ -26,6 +26,7 @@ function mapGalleryRow(row: Row): Gallery {
     openingHours: row.opening_hours ?? undefined,
     description: row.description ?? undefined,
     tags: row.tags ?? undefined,
+    whatsOnUrl: row.whats_on_url ?? undefined,
   });
 }
 

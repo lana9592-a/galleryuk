@@ -26,6 +26,7 @@ export const GallerySchema = z.object({
   openingHours: z.record(z.string()).optional(),
   description: z.string().max(400).optional(),
   tags: z.array(z.string()).optional(),
+  whatsOnUrl: z.string().url().optional(),
 });
 export type Gallery = z.infer<typeof GallerySchema>;
 

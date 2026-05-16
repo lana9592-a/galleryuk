@@ -32,6 +32,7 @@ export type ScrapeRunResult =
         updated: number;
         skippedVerified: number;
         skippedInvalid: number;
+        stalePurged: number;
       };
       skipped: ScrapeSkipped[];
       failures: ScrapeFailure[];
@@ -138,7 +139,13 @@ export async function runScrapeForGallery(
     };
   }
 
-  const counts = { inserted: 0, updated: 0, skippedVerified: 0, skippedInvalid: 0 };
+  const counts = {
+    inserted: 0,
+    updated: 0,
+    skippedVerified: 0,
+    skippedInvalid: 0,
+    stalePurged: 0,
+  };
   const failures: ScrapeFailure[] = [];
   const skipped: ScrapeSkipped[] = [];
   const touchedIds: string[] = [];
@@ -164,7 +171,40 @@ export async function runScrapeForGallery(
     }
   }
 
-  if (counts.inserted > 0 || counts.updated > 0) {
+  // Stale-row cleanup: any non-verified row for this gallery the scraper
+  // didn't touch this run is no longer on the gallery's listing, so it's
+  // stale and should go. Two safety rails:
+  //   - Only purge when the scrape itself was healthy (found > 0). A bad
+  //     run that returned 0 must never wipe the gallery's data.
+  //   - verified=true rows are categorically protected (admin-curated).
+  // Failures don't block cleanup — partial success still implies the new
+  // data is closer to truth than the old.
+  let stalePurged = 0;
+  if (extracted.exhibitions.length > 0 && touchedIds.length > 0) {
+    const { data: staleRows, error: staleErr } = await admin
+      .from('exhibitions')
+      .select('id')
+      .eq('gallery_id', galleryId)
+      .eq('verified', false)
+      .not('id', 'in', `(${touchedIds.map((id) => `"${id}"`).join(',')})`);
+    if (!staleErr && staleRows && staleRows.length > 0) {
+      const staleIds = staleRows.map((r) => r.id as string);
+      const { error: delErr } = await admin
+        .from('exhibitions')
+        .delete()
+        .in('id', staleIds)
+        .eq('verified', false);
+      if (!delErr) {
+        stalePurged = staleIds.length;
+        counts.stalePurged = stalePurged;
+        for (const id of staleIds) {
+          revalidatePath(`/exhibitions/${id}`);
+        }
+      }
+    }
+  }
+
+  if (counts.inserted > 0 || counts.updated > 0 || stalePurged > 0) {
     revalidatePath('/');
     revalidatePath('/exhibitions');
     revalidatePath('/galleries');
