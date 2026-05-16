@@ -14,7 +14,7 @@ Rules:
 - "description" is the longer body. Plain markdown is fine.
 - "category" must be one of: painting, photography, sculpture, installation, mixed. Use "mixed" when unsure.
 - "priceFrom" / "priceTo" are GBP numbers, or null for free entry.
-- "ticketUrl" is the booking page URL, or null if none is shown.
+- "ticketUrl" — VERY IMPORTANT — the URL of THIS specific exhibition's own page on the gallery's website (where the visitor can read more, see times, and book if applicable). On a "What's on" listing, this is the link that wraps each exhibition's title/card — NOT the page URL itself, NOT the gallery's homepage, NOT a generic "buy tickets" header link. Resolve relative URLs (e.g. /whats-on/exhibition-foo) to absolute by combining with the page URL. Set null only when no exhibition-specific link exists at all.
 - "heroImage" is the absolute URL of the main image for that exhibition. If only a relative URL is present, resolve it against the page URL. If no image is present, copy the page's largest related image URL.
 - "heroImageAlt" is a short alt text describing the image (≤ 200 characters).
 - "artists" / "tags" are arrays — use empty arrays, not null, when unknown.
@@ -133,9 +133,39 @@ export async function extractExhibitionsWithLLM(
     );
   }
 
+  // Defence in depth — even with the prompt, the LLM occasionally returns a
+  // relative URL ('/whats-on/foo') for ticketUrl or heroImage. Resolve them
+  // against the page URL so they store as absolute and the public site's
+  // <a href> works without JS-side rewriting. Drop anything we can't make
+  // into a usable absolute URL; ticketUrl is nullable, heroImage stays as
+  // whatever the LLM gave us (Zod check downstream catches bad heroImages).
+  const exhibitions = result.data.exhibitions.map((e) => ({
+    ...e,
+    ticketUrl: toAbsoluteUrlOrNull(e.ticketUrl, pageUrl),
+    heroImage: toAbsoluteUrl(e.heroImage, pageUrl) ?? e.heroImage,
+  }));
+
   return {
-    exhibitions: result.data.exhibitions,
+    exhibitions,
     inputTokens: response.usage.input_tokens,
     outputTokens: response.usage.output_tokens,
   };
+}
+
+function toAbsoluteUrl(value: string, base: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  try {
+    return new URL(trimmed, base).toString();
+  } catch {
+    return null;
+  }
+}
+
+function toAbsoluteUrlOrNull(
+  value: string | null,
+  base: string,
+): string | null {
+  if (value == null) return null;
+  return toAbsoluteUrl(value, base);
 }
