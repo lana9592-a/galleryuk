@@ -141,13 +141,18 @@ export async function runScrapeForGallery(
   const counts = { inserted: 0, updated: 0, skippedVerified: 0, skippedInvalid: 0 };
   const failures: ScrapeFailure[] = [];
   const skipped: ScrapeSkipped[] = [];
+  const touchedIds: string[] = [];
 
   for (const scraped of extracted.exhibitions) {
     try {
       const outcome = await upsertScrapedExhibition(scraped, galleryId, sourceUrl);
-      if (outcome.status === 'inserted') counts.inserted++;
-      else if (outcome.status === 'updated') counts.updated++;
-      else if (outcome.status === 'skipped-verified') {
+      if (outcome.status === 'inserted') {
+        counts.inserted++;
+        touchedIds.push(outcome.id);
+      } else if (outcome.status === 'updated') {
+        counts.updated++;
+        touchedIds.push(outcome.id);
+      } else if (outcome.status === 'skipped-verified') {
         counts.skippedVerified++;
         skipped.push({ id: outcome.id, reason: outcome.reason });
       } else {
@@ -165,6 +170,12 @@ export async function runScrapeForGallery(
     revalidatePath('/galleries');
     revalidatePath(`/galleries/${galleryId}`);
     revalidatePath('/admin/exhibitions');
+    // Per-exhibition detail pages are SSG with revalidate=3600 — without
+    // this loop, freshly written ticketUrl / hero / dates would stay
+    // hidden behind the stale snapshot for up to an hour.
+    for (const id of touchedIds) {
+      revalidatePath(`/exhibitions/${id}`);
+    }
   }
 
   const durationMs = Date.now() - start;
