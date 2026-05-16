@@ -221,6 +221,25 @@ export async function runScrapeForGallery(
   const durationMs = Date.now() - start;
   const status = failures.length > 0 ? 'partial' : 'success';
 
+  // Log assistive messages: real failures first, then schema-rejected
+  // rows ("LLM found N but none matched our schema"). Both are useful
+  // when triaging — RA's 'found 9 / skipped 9' run for instance only
+  // makes sense once the schema-reject reasons surface in the log.
+  const noteParts: string[] = [];
+  if (failures.length > 0) {
+    noteParts.push(failures.map((f) => f.reason).join(' | '));
+  }
+  if (counts.skippedInvalid > 0) {
+    const invalidReasons = skipped
+      .filter((s) => !s.reason.startsWith('admin-edited'))
+      .slice(0, 3)
+      .map((s) => `${s.id || '?'}: ${s.reason}`)
+      .join(' | ');
+    noteParts.push(
+      `${counts.skippedInvalid} row(s) rejected by schema — ${invalidReasons}`,
+    );
+  }
+
   await admin.from('scrape_log').insert({
     gallery_id: galleryId,
     status: failures.length > 0 ? 'error' : 'success',
@@ -228,7 +247,7 @@ export async function runScrapeForGallery(
     exhibitions_inserted: counts.inserted,
     exhibitions_updated: counts.updated,
     exhibitions_skipped: counts.skippedVerified + counts.skippedInvalid,
-    error_message: failures.length > 0 ? failures.map((f) => f.reason).join(' | ') : null,
+    error_message: noteParts.length > 0 ? noteParts.join(' ‖ ') : null,
     duration_ms: durationMs,
     prompt_tokens: extracted.inputTokens,
     completion_tokens: extracted.outputTokens,
