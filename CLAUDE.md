@@ -285,6 +285,8 @@ For each gallery WHERE whats_on_url IS NOT NULL:
 - [ ] 외부 SDK helper 도입 시 Zod / 다른 의존성 버전 호환성 확인
 - [ ] 로컬 빌드(`pnpm build`)가 stub env로 'Compiled successfully'까지 가나
 - [ ] 단위 테스트(`pnpm test`) 그린 유지
+- [ ] Server Action / Route에 wall-clock budget 명시 (Vercel Hobby 60s) — 한 호출에 처리하는 작업 단위(갤러리 수 등)에 상한
+- [ ] 클라이언트 컴포넌트가 server response의 모든 필드를 `undefined` 가능성 가정하고 방어 (`(x ?? []).filter(...)`, `state?.status === 'done'`)
 
 ### 다음 세션 재진입 가이드 (v1.2 후속)
 
