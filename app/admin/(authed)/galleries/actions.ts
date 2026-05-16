@@ -89,6 +89,7 @@ function readGalleryForm(formData: FormData): {
     openingHours: openingHoursFromJson(formData.get('openingHours')),
     description: trimNullable(formData.get('description')),
     tags: tagsFromCsv(formData.get('tags')),
+    whatsOnUrl: trimNullable(formData.get('whatsOnUrl')),
   };
 
   const result = GallerySchema.safeParse(candidate);
@@ -117,6 +118,7 @@ function toRow(g: z.infer<typeof GallerySchema>) {
     opening_hours: g.openingHours ?? null,
     description: g.description ?? null,
     tags: g.tags ?? null,
+    whats_on_url: g.whatsOnUrl ?? null,
   };
 }
 

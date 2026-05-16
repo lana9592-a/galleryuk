@@ -223,6 +223,21 @@ export function GalleryForm({ mode, initial, action }: GalleryFormProps) {
             className={inputBase}
           />
         </Field>
+
+        <Field
+          label="What's on URL"
+          name="whatsOnUrl"
+          hint="Gallery's exhibition listing page. Used by the auto-scraper. Leave blank to skip."
+          error={errors.whatsOnUrl}
+        >
+          <input
+            id="whatsOnUrl"
+            name="whatsOnUrl"
+            type="url"
+            defaultValue={initial?.whatsOnUrl ?? ''}
+            className={inputBase}
+          />
+        </Field>
       </fieldset>
 
       <Field

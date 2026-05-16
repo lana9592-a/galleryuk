@@ -1,8 +1,12 @@
 'use client';
 
 import { useFormState, useFormStatus } from 'react-dom';
-import { Loader2, Play } from 'lucide-react';
-import { runScrapeAction, type RunScrapeState } from './actions';
+import { Loader2, Play, Zap } from 'lucide-react';
+import {
+  runScrapeAction,
+  runScrapeAllAction,
+  type RunScrapeState,
+} from './actions';
 import type { ScrapeRunResult } from '@/lib/scrape/runScrape';
 
 const initial: RunScrapeState = { status: 'idle' };
@@ -40,6 +44,29 @@ function RunButton({ disabled }: { disabled: boolean }) {
   );
 }
 
+function RunAllButton({ disabled }: { disabled: boolean }) {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending || disabled}
+      className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-border bg-surface px-5 text-sm font-semibold hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:opacity-50"
+    >
+      {pending ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          Scraping all…
+        </>
+      ) : (
+        <>
+          <Zap className="h-4 w-4" aria-hidden />
+          Scrape all
+        </>
+      )}
+    </button>
+  );
+}
+
 function ResultCard({ result }: { result: ScrapeRunResult }) {
   if (result.status === 'skipped') {
     return (
@@ -70,7 +97,7 @@ function ResultCard({ result }: { result: ScrapeRunResult }) {
         </p>
         <p className="text-xs text-text-muted">{durationMs} ms</p>
       </div>
-      <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-5">
         <Stat label="Found" value={result.found} />
         <Stat label="Inserted" value={counts.inserted} tone="positive" />
         <Stat label="Updated" value={counts.updated} tone="positive" />
@@ -78,6 +105,11 @@ function ResultCard({ result }: { result: ScrapeRunResult }) {
           label="Skipped"
           value={counts.skippedVerified + counts.skippedInvalid}
           tone="muted"
+        />
+        <Stat
+          label="Stale purged"
+          value={counts.stalePurged}
+          tone={counts.stalePurged > 0 ? 'positive' : 'muted'}
         />
       </div>
       <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-text-muted">
@@ -142,6 +174,10 @@ function Stat({
 
 export function ScrapeRunner({ galleries }: Props) {
   const [state, formAction] = useFormState(runScrapeAction, initial);
+  const [batchState, batchAction] = useFormState(
+    runScrapeAllAction,
+    initial,
+  );
 
   const eligible = galleries.filter((g) => g.whatsOnUrl);
   const noneEligible = eligible.length === 0;
@@ -174,7 +210,7 @@ export function ScrapeRunner({ galleries }: Props) {
           {noneEligible ? (
             <p className="text-xs text-amber-700">
               Set a gallery&rsquo;s <span className="font-mono">whats_on_url</span>{' '}
-              in Supabase Table Editor first (e.g.{' '}
+              on the gallery&rsquo;s edit page first (e.g.{' '}
               <span className="font-mono">
                 https://www.tate.org.uk/whats-on/tate-modern
               </span>
@@ -182,9 +218,11 @@ export function ScrapeRunner({ galleries }: Props) {
             </p>
           ) : (
             <p className="text-xs text-text-muted">
-              Only galleries with{' '}
-              <span className="font-mono">whats_on_url</span> populated are
-              shown. Scraping takes ~10–30 seconds and costs ~$0.005.
+              {eligible.length}{' '}
+              {eligible.length === 1 ? 'gallery' : 'galleries'} eligible.
+              Single-gallery: ~10–30s, ~$0.005. &quot;Scrape all&quot;: sequential,
+              ~10s per gallery — may approach Vercel&rsquo;s 60s ceiling around
+              5–8 galleries.
             </p>
           )}
         </div>
@@ -195,10 +233,73 @@ export function ScrapeRunner({ galleries }: Props) {
           </p>
         ) : null}
 
-        <RunButton disabled={noneEligible} />
+        <div className="flex flex-wrap gap-3">
+          <RunButton disabled={noneEligible} />
+        </div>
+      </form>
+
+      <form action={batchAction}>
+        {batchState.status === 'invalid' ? (
+          <p role="alert" className="mb-2 text-sm text-red-700">
+            {batchState.message}
+          </p>
+        ) : null}
+        <RunAllButton disabled={noneEligible} />
       </form>
 
       {state.status === 'done' ? <ResultCard result={state.result} /> : null}
+
+      {batchState.status === 'done-batch' ? (
+        <BatchResults results={batchState.results} />
+      ) : null}
+    </div>
+  );
+}
+
+function BatchResults({ results }: { results: ScrapeRunResult[] }) {
+  const totals = results.reduce(
+    (acc, r) => {
+      if (r.status === 'success' || r.status === 'partial') {
+        acc.found += r.found;
+        acc.inserted += r.counts.inserted;
+        acc.updated += r.counts.updated;
+        acc.stalePurged += r.counts.stalePurged;
+        acc.costUsd += r.tokens.estimatedCostUsd;
+      }
+      return acc;
+    },
+    { found: 0, inserted: 0, updated: 0, stalePurged: 0, costUsd: 0 },
+  );
+
+  return (
+    <div className="space-y-3">
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-text-muted">
+        Batch results — {results.length}{' '}
+        {results.length === 1 ? 'gallery' : 'galleries'}
+      </h3>
+      <div className="grid grid-cols-2 gap-3 rounded-md border border-border bg-surface p-4 text-sm md:grid-cols-5">
+        <Stat label="Found" value={totals.found} />
+        <Stat label="Inserted" value={totals.inserted} tone="positive" />
+        <Stat label="Updated" value={totals.updated} tone="positive" />
+        <Stat
+          label="Purged"
+          value={totals.stalePurged}
+          tone={totals.stalePurged > 0 ? 'positive' : 'muted'}
+        />
+        <div>
+          <p className="text-xs uppercase tracking-wide text-text-muted">
+            Total cost
+          </p>
+          <p className="text-xl font-bold tabular-nums">
+            ${totals.costUsd.toFixed(4)}
+          </p>
+        </div>
+      </div>
+      <div className="space-y-2">
+        {results.map((r, i) => (
+          <ResultCard key={`${r.gallery}-${i}`} result={r} />
+        ))}
+      </div>
     </div>
   );
 }
