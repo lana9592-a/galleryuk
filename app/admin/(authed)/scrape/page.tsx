@@ -78,13 +78,14 @@ export default async function AdminScrapePage() {
                   <th className="px-3 py-2 text-right">+/~/skip</th>
                   <th className="px-3 py-2 text-right">ms</th>
                   <th className="px-3 py-2 text-right">Tokens</th>
+                  <th className="px-3 py-2 text-left">Error / note</th>
                 </tr>
               </thead>
               <tbody>
                 {log.map((row) => (
                   <tr
                     key={row.id as string}
-                    className="border-b border-border last:border-b-0"
+                    className="border-b border-border last:border-b-0 align-top"
                   >
                     <td className="px-3 py-2 text-xs text-text-muted">
                       {new Date(row.run_at as string).toLocaleString('en-GB', {
@@ -119,6 +120,15 @@ export default async function AdminScrapePage() {
                       {row.prompt_tokens && row.completion_tokens
                         ? `${(row.prompt_tokens as number).toLocaleString()} → ${(row.completion_tokens as number).toLocaleString()}`
                         : '—'}
+                    </td>
+                    <td className="px-3 py-2 text-xs text-text-muted">
+                      {row.error_message ? (
+                        <span className="block max-w-md break-words font-mono text-red-700">
+                          {row.error_message as string}
+                        </span>
+                      ) : (
+                        '—'
+                      )}
                     </td>
                   </tr>
                 ))}
