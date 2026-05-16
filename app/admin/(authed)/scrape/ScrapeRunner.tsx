@@ -220,9 +220,9 @@ export function ScrapeRunner({ galleries }: Props) {
             <p className="text-xs text-text-muted">
               {eligible.length}{' '}
               {eligible.length === 1 ? 'gallery' : 'galleries'} eligible.
-              Single-gallery: ~10–30s, ~$0.005. &quot;Scrape all&quot;: sequential,
-              ~10s per gallery — may approach Vercel&rsquo;s 60s ceiling around
-              5–8 galleries.
+              Single-gallery: ~10–30s, ~$0.005. &quot;Scrape all&quot;
+              processes up to 3 galleries per click (Vercel Hobby 60s ceiling
+              — click again to do the rest).
             </p>
           )}
         </div>
@@ -257,7 +257,14 @@ export function ScrapeRunner({ galleries }: Props) {
 }
 
 function BatchResults({ results }: { results: ScrapeRunResult[] }) {
-  const totals = results.reduce(
+  // Defensive: a 504 or aborted batch can leave undefined entries in the
+  // results array. Filter them out before reducing/rendering so the page
+  // doesn't crash with 'Cannot read properties of undefined'.
+  const safeResults = (results ?? []).filter(
+    (r): r is ScrapeRunResult =>
+      r != null && typeof r === 'object' && 'status' in r,
+  );
+  const totals = safeResults.reduce(
     (acc, r) => {
       if (r.status === 'success' || r.status === 'partial') {
         acc.found += r.found;
@@ -274,8 +281,8 @@ function BatchResults({ results }: { results: ScrapeRunResult[] }) {
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold uppercase tracking-wide text-text-muted">
-        Batch results — {results.length}{' '}
-        {results.length === 1 ? 'gallery' : 'galleries'}
+        Batch results — {safeResults.length}{' '}
+        {safeResults.length === 1 ? 'gallery' : 'galleries'}
       </h3>
       <div className="grid grid-cols-2 gap-3 rounded-md border border-border bg-surface p-4 text-sm md:grid-cols-5">
         <Stat label="Found" value={totals.found} />
@@ -296,7 +303,7 @@ function BatchResults({ results }: { results: ScrapeRunResult[] }) {
         </div>
       </div>
       <div className="space-y-2">
-        {results.map((r, i) => (
+        {safeResults.map((r, i) => (
           <ResultCard key={`${r.gallery}-${i}`} result={r} />
         ))}
       </div>
