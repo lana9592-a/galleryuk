@@ -53,15 +53,15 @@ export async function runScrapeAllAction(
 ): Promise<RunScrapeState> {
   await assertAdmin();
   const admin = getSupabaseAdmin();
-  const { data, error } = await admin
+
+  const { data: galleries, error: galleriesErr } = await admin
     .from('galleries')
     .select('id, whats_on_url')
-    .not('whats_on_url', 'is', null)
-    .order('name', { ascending: true });
-  if (error) {
-    return { status: 'invalid', message: `Could not list galleries: ${error.message}` };
+    .not('whats_on_url', 'is', null);
+  if (galleriesErr) {
+    return { status: 'invalid', message: `Could not list galleries: ${galleriesErr.message}` };
   }
-  const eligible = (data ?? []).filter((g) => !!g.whats_on_url);
+  const eligible = (galleries ?? []).filter((g) => !!g.whats_on_url);
   if (eligible.length === 0) {
     return {
       status: 'invalid',
@@ -69,10 +69,32 @@ export async function runScrapeAllAction(
     };
   }
 
-  // Take only the first BATCH_GALLERY_CAP — caller can click again to
-  // process the rest. We don't pre-sort by 'least recently scraped'
-  // because that adds another query; alphabetical is predictable enough.
-  const batch = eligible.slice(0, BATCH_GALLERY_CAP);
+  // Pull the most-recent successful run per gallery so we can pick the
+  // oldest first. Without this the slice(0, CAP) above would process the
+  // same alphabetically-first N galleries on every click and never get
+  // round to the rest.
+  const { data: lastRuns } = await admin
+    .from('scrape_log')
+    .select('gallery_id, run_at')
+    .eq('status', 'success')
+    .order('run_at', { ascending: false });
+
+  const lastRunByGallery = new Map<string, string>();
+  for (const r of lastRuns ?? []) {
+    const gid = r.gallery_id as string | null;
+    if (gid && !lastRunByGallery.has(gid)) {
+      lastRunByGallery.set(gid, r.run_at as string);
+    }
+  }
+
+  // Never-scraped (no entry) sort to the front via a sentinel timestamp.
+  const sorted = eligible.slice().sort((a, b) => {
+    const aTime = lastRunByGallery.get(a.id as string) ?? '0000';
+    const bTime = lastRunByGallery.get(b.id as string) ?? '0000';
+    return aTime.localeCompare(bTime);
+  });
+
+  const batch = sorted.slice(0, BATCH_GALLERY_CAP);
 
   const startedAt = Date.now();
   const results: ScrapeRunResult[] = [];

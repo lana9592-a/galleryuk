@@ -221,8 +221,10 @@ export function ScrapeRunner({ galleries }: Props) {
               {eligible.length}{' '}
               {eligible.length === 1 ? 'gallery' : 'galleries'} eligible.
               Single-gallery: ~10–30s, ~$0.005. &quot;Scrape all&quot;
-              processes up to 3 galleries per click (Vercel Hobby 60s ceiling
-              — click again to do the rest).
+              processes up to 3 galleries per click —{' '}
+              <span className="font-semibold">least-recently-scraped first</span>{' '}
+              — so repeat clicks rotate through every venue under Vercel
+              Hobby&rsquo;s 60s ceiling.
             </p>
           )}
         </div>

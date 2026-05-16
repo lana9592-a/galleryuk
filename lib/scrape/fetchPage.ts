@@ -12,11 +12,19 @@ export function cleanHtml(html: string): string {
     .trim();
 }
 
+// "Compatible-mode" UA: looks browser-shaped enough to clear most CDN
+// bot filters (Southbank Centre's 403 on the bare 'GalleryUKBot/1.0'
+// string is the motivating example), but identifies the project + URL
+// per crawler-etiquette norms (same shape Googlebot/Bingbot use).
+const USER_AGENT =
+  'Mozilla/5.0 (compatible; GalleryUKBot/1.0; +https://galleryuk.vercel.app)';
+
 export async function fetchHtmlPage(url: string): Promise<string> {
   const response = await fetch(url, {
     headers: {
-      'User-Agent': 'GalleryUKBot/1.0 (+https://galleryuk.vercel.app)',
-      Accept: 'text/html,application/xhtml+xml',
+      'User-Agent': USER_AGENT,
+      Accept:
+        'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       'Accept-Language': 'en-GB,en;q=0.9',
     },
     cache: 'no-store',
