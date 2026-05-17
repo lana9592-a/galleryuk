@@ -101,6 +101,7 @@ function readExhibitionForm(formData: FormData): {
     heroImageAlt: trimNullable(formData.get('heroImageAlt')),
     images,
     featured: formData.get('featured') === 'on',
+    verified: formData.get('verified') === 'on',
   };
 
   const result = ExhibitionSchema.safeParse(candidate);
@@ -134,6 +135,7 @@ function toRow(e: z.infer<typeof ExhibitionSchema>) {
     hero_image_alt: e.heroImageAlt,
     images: e.images ?? null,
     featured: e.featured ?? false,
+    verified: e.verified ?? false,
   };
 }
 

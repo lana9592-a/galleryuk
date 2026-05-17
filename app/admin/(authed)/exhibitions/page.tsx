@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { Plus, Pencil } from 'lucide-react';
+import { Plus, Pencil, Lock } from 'lucide-react';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { formatDateShort } from '@/lib/format';
 import { CATEGORY_LABEL } from '@/lib/constants';
@@ -22,6 +22,7 @@ type ExhibitionRow = {
   end_date: string;
   category: Category;
   gallery_id: string;
+  verified: boolean;
   galleries: { name: string } | null;
 };
 
@@ -40,7 +41,9 @@ const statusLabel: Record<ExhibitionStatus, string> = {
 async function getExhibitions(): Promise<ExhibitionRow[]> {
   const { data, error } = await getSupabaseAdmin()
     .from('exhibitions')
-    .select('id, title, start_date, end_date, category, gallery_id, galleries(name)')
+    .select(
+      'id, title, start_date, end_date, category, gallery_id, verified, galleries(name)',
+    )
     .order('start_date', { ascending: false });
   if (error) throw new Error(error.message);
   return (data ?? []).map((row) => ({
@@ -50,6 +53,7 @@ async function getExhibitions(): Promise<ExhibitionRow[]> {
     end_date: row.end_date as string,
     category: row.category as Category,
     gallery_id: row.gallery_id as string,
+    verified: (row.verified as boolean | null) ?? false,
     galleries:
       row.galleries && typeof row.galleries === 'object' && 'name' in row.galleries
         ? { name: (row.galleries as { name: string }).name }
@@ -102,7 +106,15 @@ export default async function AdminExhibitionsPage() {
                   className="border-b border-border last:border-b-0"
                 >
                   <td className="px-4 py-3">
-                    <p className="font-medium">{e.title}</p>
+                    <p className="flex items-center gap-1.5 font-medium">
+                      {e.title}
+                      {e.verified ? (
+                        <Lock
+                          className="h-3.5 w-3.5 text-text-muted"
+                          aria-label="Verified — scraper will skip this row"
+                        />
+                      ) : null}
+                    </p>
                     <p className="font-mono text-xs text-text-muted">{e.id}</p>
                   </td>
                   <td className="px-4 py-3 text-text-muted">

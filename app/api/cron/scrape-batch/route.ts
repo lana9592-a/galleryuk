@@ -21,7 +21,13 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { results } = await runScrapeBatch(getSupabaseAdmin());
+    // ?force=1 bypasses the cooldown — manual-test escape hatch only.
+    // Vercel-scheduled invocations never pass query strings, so this
+    // can't accidentally fire from the actual cron schedule.
+    const skipCooldown = request.nextUrl.searchParams.get('force') === '1';
+    const { results } = await runScrapeBatch(getSupabaseAdmin(), {
+      skipCooldown,
+    });
 
     // Summarise so the response payload tells the cron log everything
     // operators need without paging into Supabase.
@@ -33,12 +39,22 @@ export async function GET(request: NextRequest) {
       skipped: results.filter((r) => r.status === 'skipped').length,
     };
 
+    // Surface the outcome in Vercel's Function log line — the runtime-log
+    // UI doesn't always show the response body, but it always shows
+    // console output. Lets the operator see at a glance whether the run
+    // skipped everything (cooldown), partial-failed, or all-succeeded.
+    console.log(
+      `[cron/scrape-batch] ${skipCooldown ? 'force ' : ''}done — total=${summary.total} success=${summary.success} partial=${summary.partial} error=${summary.error} skipped=${summary.skipped}`,
+    );
+
     return NextResponse.json({ status: 'ok', summary, results });
   } catch (err) {
+    const error = err instanceof Error ? err.message : String(err);
+    console.error('[cron/scrape-batch] failed:', error);
     return NextResponse.json(
       {
         status: 'error',
-        error: err instanceof Error ? err.message : String(err),
+        error,
       },
       { status: 500 },
     );

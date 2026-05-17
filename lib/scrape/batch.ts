@@ -19,8 +19,18 @@ export type BatchOutcome = {
   results: ScrapeRunResult[];
 };
 
+export type BatchOptions = {
+  // Manual-test override. Vercel-scheduled cron never sets this; it's
+  // for one-off operator runs ('I want to see the pipeline actually do
+  // something right now even though everything was just scraped').
+  // Skips the cooldown rule only — the consecutive-failures rule still
+  // protects against burning fetches on hard-broken galleries.
+  skipCooldown?: boolean;
+};
+
 export async function runScrapeBatch(
   admin: SupabaseClient,
+  options: BatchOptions = {},
 ): Promise<BatchOutcome> {
   const { data: galleries, error: galleriesErr } = await admin
     .from('galleries')
@@ -67,7 +77,7 @@ export async function runScrapeBatch(
     const recentSuccess = history.find(
       (h) => h.status === 'success' && h.run_at > cutoffIso,
     );
-    if (recentSuccess) {
+    if (recentSuccess && !options.skipCooldown) {
       skipResults.push({
         status: 'skipped',
         gallery: gid,
