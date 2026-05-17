@@ -50,6 +50,7 @@ function mapExhibitionRow(row: Row): Exhibition {
     heroImageAlt: row.hero_image_alt,
     images: row.images ?? undefined,
     featured: row.featured ?? false,
+    verified: row.verified ?? false,
   });
 }
 

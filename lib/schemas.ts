@@ -59,6 +59,7 @@ export const ExhibitionSchema = z
       .max(8)
       .optional(),
     featured: z.boolean().optional(),
+    verified: z.boolean().optional(),
   })
   .refine((e) => new Date(e.startDate) <= new Date(e.endDate), {
     message: 'startDate must be <= endDate',

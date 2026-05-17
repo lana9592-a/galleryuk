@@ -372,18 +372,39 @@ export function ExhibitionForm({
         </Field>
       </section>
 
-      <section className="space-y-2">
+      <section className="space-y-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-text-muted">
           Flags
         </h2>
-        <label className="inline-flex items-center gap-2 text-sm">
+        <label className="flex items-start gap-2 text-sm">
           <input
             type="checkbox"
             name="featured"
             defaultChecked={initialData?.featured === true}
-            className="h-4 w-4 rounded border-border"
+            className="mt-1 h-4 w-4 rounded border-border"
           />
-          Featured (used by the home page hero)
+          <span>
+            <span className="font-medium">Featured</span>
+            <span className="block text-xs text-text-muted">
+              Used by the home page hero.
+            </span>
+          </span>
+        </label>
+        <label className="flex items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="verified"
+            defaultChecked={initialData?.verified === true}
+            className="mt-1 h-4 w-4 rounded border-border"
+          />
+          <span>
+            <span className="font-medium">Verified</span>
+            <span className="block text-xs text-text-muted">
+              Lock this row from the auto-scraper. Use when you&rsquo;ve hand-
+              corrected fields and don&rsquo;t want the next nightly run to
+              overwrite them. The scraper skips verified rows entirely.
+            </span>
+          </span>
         </label>
       </section>
 
