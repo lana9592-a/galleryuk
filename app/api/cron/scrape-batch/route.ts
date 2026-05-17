@@ -21,7 +21,13 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { results } = await runScrapeBatch(getSupabaseAdmin());
+    // ?force=1 bypasses the cooldown — manual-test escape hatch only.
+    // Vercel-scheduled invocations never pass query strings, so this
+    // can't accidentally fire from the actual cron schedule.
+    const skipCooldown = request.nextUrl.searchParams.get('force') === '1';
+    const { results } = await runScrapeBatch(getSupabaseAdmin(), {
+      skipCooldown,
+    });
 
     // Summarise so the response payload tells the cron log everything
     // operators need without paging into Supabase.
