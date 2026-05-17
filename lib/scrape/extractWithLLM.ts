@@ -90,12 +90,20 @@ export async function extractExhibitionsWithLLM(
 
   const response = await anthropic.messages.create({
     model: SCRAPER_MODEL,
-    max_tokens: 8192,
+    // Output: gallery pages typically yield 10-30 exhibitions @ ~150 tokens
+    // each. 4096 covers all observed cases with headroom; 8192 was budget
+    // for failure modes that the strict schema now catches earlier.
+    max_tokens: 4096,
     system: SYSTEM_PROMPT,
     messages: [
       {
         role: 'user',
-        content: `Page URL: ${pageUrl}\n\nHTML:\n\n${html.slice(0, 240_000)}`,
+        // HTML cap: 100k chars (~25k tokens). After cleanHtml strips
+        // scripts/styles/comments, real What's On pages run 30-80k chars
+        // and fit easily. Hard ceiling protects against pathological
+        // pages (one Tate index page measured at 220k post-clean) that
+        // would otherwise quadruple the Anthropic bill per call.
+        content: `Page URL: ${pageUrl}\n\nHTML:\n\n${html.slice(0, 100_000)}`,
       },
     ],
     output_config: {
