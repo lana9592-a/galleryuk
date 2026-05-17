@@ -220,11 +220,10 @@ export function ScrapeRunner({ galleries }: Props) {
             <p className="text-xs text-text-muted">
               {eligible.length}{' '}
               {eligible.length === 1 ? 'gallery' : 'galleries'} eligible.
-              Single-gallery: ~10–30s, ~$0.005. &quot;Scrape all&quot;
-              processes up to 3 galleries per click —{' '}
-              <span className="font-semibold">least-recently-scraped first</span>{' '}
-              — so repeat clicks rotate through every venue under Vercel
-              Hobby&rsquo;s 60s ceiling.
+              Single-gallery: ~10–30s, ~$0.005 (always runs, force-overrides
+              skip rules). &quot;Scrape all&quot; processes up to 3 per click
+              — least-recently-scraped first, auto-skipping anything
+              successful in the last 12h or with 3 consecutive failures.
             </p>
           )}
         </div>
